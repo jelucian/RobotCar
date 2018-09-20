@@ -3,8 +3,8 @@
 
 
 /* 
-		PD0 - M0PWM6 - val 4 for PCTL - PWM motor A - generator 3
-		PD1 - M1PWM1 - val 5 for PCTL - PWM motor B - generator 0
+		PD0 - M0PWM6 - val 4 for PCTL - PWM motor A - generator 3 output a
+		PD1 - M1PWM1 - val 5 for PCTL - PWM motor B - generator 0 output b
 		
 		PF0 - sw2 - direction
 		PF1 - red
@@ -17,16 +17,11 @@
  */
  
 #include <stdint.h>
-//#include "inc/tm4c123gh6pm.h"
 #include "tm4c123gh6pm.h"
 #define PWM_0_GENA_ACTCMPAD_ONE 0x000000C0  // Set the output signal to 1
 #define PWM_0_GENA_ACTLOAD_ZERO 0x00000008  // Set the output signal to 0
 #define PWM_0_GENB_ACTCMPBD_ONE 0x00000C00  // Set the output signal to 1
 #define PWM_0_GENB_ACTLOAD_ZERO 0x00000008  // Set the output signal to 0
-
-#define SYSCTL_RCC_USEPWMDIV    0x00100000  // Enable PWM Clock Divisor
-#define SYSCTL_RCC_PWMDIV_M     0x000E0000  // PWM Unit Clock Divisor
-#define SYSCTL_RCC_PWMDIV_2     0x00000000  // /2
 
 int speed; 
 
@@ -59,12 +54,26 @@ void PortD_Init(void){
 	SYSCTL_RCC_R |=  0x00000000; //set bits 19-17 to 0, for divider of 2
 	
 	//M1
-	PWM
+	PWM1_0_LOAD_R = 40000 - 1;	//M1 generator 1 for output 1 output b
+	PWM1_0_CMPB_R = 20000 - 1;	//set 50% duty cycle for generator 3 output b
+	
+	PWM1_0_CTL_R &= ~0x00000010; //set mode to countdown
+	PWM1_0_CTL_R |=  0x00000001; //enable generator
+
+	PWM1_0_GENB_R |= 0x0000080C; //immediate updates to parameters
+	
+	PWM1_ENABLE_R |= 0x02; // enable output 1 of module 1
 	
 	//M0
+	PWM0_3_LOAD_R = 40000 - 1;//M0 generator 3 for output 6 output a
+	PWM0_3_LOAD_R = 20000 - 1;//50% duty cycle
 	
-
+	PWM0_3_CTL_R &= ~0x00000010; //set mode to countdown
+	PWM0_3_CTL_R |=  0x00000001; //enable generator
 	
+	PWM0_3_GENA_R |= 0x0000008C; //immediate updates for parameters
+	
+	PWM0_ENABLE_R |= 0x40; //enable output 6
 }
 
 
@@ -95,6 +104,7 @@ void GPIOPortF_Handler(void){ // called on touch of either SW1 or SW2
 	//Edit for future usage: Turn direction into a two bit GPIO_PORTA_DATA_R for bits 3 and 2 so it can easily connect to LED
 }
 
+//Aaron: please make this look neater for readability and debugging purposes
 void PortF_Init(void){  
 	unsigned long volatile delay;
   SYSCTL_RCGC2_R |= 0x00000020; // (a) activate clock for port F
