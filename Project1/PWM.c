@@ -105,30 +105,27 @@ void PWM1F_Init(uint16_t period, uint16_t duty){
 
 //interrupt handler
 void GPIOPortF_Handler(void){ // called on touch of either SW1 or SW2
-  if(GPIO_PORTF_RIS_R&0x01){  // SW2 touch
-    GPIO_PORTF_ICR_R = 0x01;  // acknowledge flag0
-    // slow down decreasing duty cycle, max value of 40,000
-		if(D < P){
-			D = D + 4000;
-		}
-		if(D > P){
-			D = P;
-		}
-		
-		PWM1F_Duty(D);
-		
+  if(GPIO_PORTF_RIS_R&0x01){  // SW2 touch controls direction
+		GPIO_PORTF_ICR_R = 0x01;  // acknowledge flag0
+		GPIO_PORTD_DATA_R = GPIO_PORTD_DATA_R ^ 0x0C;
   }
-  if(GPIO_PORTF_RIS_R&0x10){  // SW1 touch
+  if(GPIO_PORTF_RIS_R&0x10){  // SW1 touch controls speed
     GPIO_PORTF_ICR_R = 0x10;  // acknowledge flag4
-    // speed up by increasing duty cycle
-		if(D > 0){
-			D = D - 4000;
-		}
-		if(D <= 3999){
-			D = 3999;
-		}
-		PWM1F_Duty(D);
-		
-
+		if(speed == 100)
+			speed = 0;
+		else if (speed == 0)
+			speed = 25;
+		else
+			speed = speed * 2;
   }
+	
+	//Regardless of what is clicked, it is best to assume LED changed
+	//Check if speed = 0, if so set light to red
+	//else, set light according to the direction 1 meaning green 0 meaning blue
+	if(speed == 0)
+		GPIO_PORTF_DATA_R = 0x02;
+	else
+		GPIO_PORTF_DATA_R = GPIO_PORTD_DATA_R & 0x0C;
+
+	//Edit for future usage: Turn direction into a two bit GPIO_PORTA_DATA_R for bits 3 and 2 so it can easily connect to LED
 }
