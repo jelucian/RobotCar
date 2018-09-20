@@ -10,7 +10,7 @@
 // the system clock to 50 MHz.  This matters for the function
 // SysTick_Wait10ms(), which will wait longer than 10 ms if the clock is
 // slower.
-// Daniel Valvano
+// Aaron Lee
 // September 11, 2013
 
 /* This example accompanies the books
