@@ -107,23 +107,35 @@ void GPIOPortF_Handler(void){ // called on touch of either SW1 or SW2
 //Aaron: please make this look neater for readability and debugging purposes
 void PortF_Init(void){  
 	unsigned long volatile delay;
-  SYSCTL_RCGC2_R |= 0x00000020; // (a) activate clock for port F
+  SYSCTL_RCGC2_R |= 0x00000020; 			// enable Port F clock
   delay = SYSCTL_RCGC2_R;
-  GPIO_PORTF_LOCK_R = 0x4C4F434B; // unlock GPIO Port F
-  GPIO_PORTF_CR_R = 0x1F;         // allow changes to PF4,0
-  GPIO_PORTF_DIR_R &= ~0x11;    // (c) make PF4,0 in (built-in button)
-	GPIO_PORTF_DIR_R |=  0x0E;		// PF1,2,3 output
-  GPIO_PORTF_AFSEL_R &= ~0x1F;  //     disable alt funct on PF4,0
-  GPIO_PORTF_DEN_R |= 0x1F;     //     enable digital I/O on PF4,0
-  GPIO_PORTF_PCTL_R &= ~0x000FFFFF; //  configure PF4,0 as GPIO
-  GPIO_PORTF_AMSEL_R &= ~0x1F;  //     disable analog functionality on PF4,0
-  GPIO_PORTF_PUR_R |= 0x11;     //     enable weak pull-up on PF4,0
-  GPIO_PORTF_IS_R &= ~0x11;     // (d) PF4,PF0 is edge-sensitive
-  GPIO_PORTF_IBE_R &= ~0x11;    //     PF4,PF0 is not both edges
-  GPIO_PORTF_IEV_R &= ~0x11;    //     PF4,PF0 falling edge event
-  GPIO_PORTF_ICR_R = 0x11;      // (e) clear flags 4,0
-  GPIO_PORTF_IM_R |= 0x11;      // (f) arm interrupt on PF4,PF0
-  NVIC_PRI7_R = (NVIC_PRI7_R&0xFF00FFFF)|0x00400000; // (g) priority 2
-  NVIC_EN0_R = 0x40000000;      // (h) enable interrupt 30 in NVIC
 	
+
+	//Configuration of GPIO PORT F switches and LED
+	GPIO_PORTF_LOCK_R 	=  0x4C4F434B; 	// unlock GPIO Port F
+  GPIO_PORTF_PCTL_R  &= ~0x000FFFFF; 	// configure Port F as GPIO
+	GPIO_PORTF_AMSEL_R &= ~0x1F;  			// disable analog functionality for Port F
+	
+	GPIO_PORTF_DEN_R   |=  0x1F;     		// enable digital I/O for Port F
+  GPIO_PORTF_CR_R     =  0x1F;      	// allow changes to Port F (5 bits)
+	
+  GPIO_PORTF_DIR_R   &= ~0x11;    		// make PF4 and PF0 inputs (onboard switch buttons)
+	GPIO_PORTF_PUR_R   |=  0x11;    		// enable weak pull-up on PF4,0
+	
+	GPIO_PORTF_DIR_R   |=  0x0E;				// make PF1, PF2, and PF3 outputs (LED display)
+	
+	GPIO_PORTF_AFSEL_R &= ~0x1F;  			// disable alternate functions for Port F
+	
+	
+	//Interrupt Logic
+  GPIO_PORTF_IS_R 	 &= ~0x11;     		// PF4 & PF0 is edge-sensitive
+  GPIO_PORTF_IBE_R   &= ~0x11;    		// PF4 & PF0 is not both edges
+  GPIO_PORTF_IEV_R   &= ~0x11;   			// PF4 & PF0 falling edge event
+	
+  GPIO_PORTF_ICR_R    =  0x11;     		// clear flags for PF4 and PF0
+	
+  GPIO_PORTF_IM_R    |=  0x11;      	// arm interrupt on PF4 & PF0
+	
+  NVIC_PRI7_R = (NVIC_PRI7_R&0xFF00FFFF)|0x00400000; 	// priority 2 interrupt for switches				 
+  NVIC_EN0_R  = 0x40000000;      			// enable interrupt 30 in NVIC
 }
