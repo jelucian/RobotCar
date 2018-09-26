@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\PWM.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\PWM.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5.03 [Build 76]: Last Updated: Wed Sep 26 11:14:07 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5.03 [Build 76]: Last Updated: Wed Sep 26 11:46:54 2018
 <BR><P>
 <H3>Maximum Stack Usage =          8 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -765,7 +765,7 @@ Global Symbols
 
 <P><STRONG><a name="[c3]"></a>__semihosting_library_function</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, indicate_semi.o(.text), UNUSED)
 
-<P><STRONG><a name="[2b]"></a>GPIOPortF_Handler</STRONG> (Thumb, 120 bytes, Stack size 0 bytes, pwm.o(i.GPIOPortF_Handler))
+<P><STRONG><a name="[2b]"></a>GPIOPortF_Handler</STRONG> (Thumb, 240 bytes, Stack size 0 bytes, pwm.o(i.GPIOPortF_Handler))
 <BR>[Address Reference Count : 1]<UL><LI> startup.o(RESET)
 </UL>
 <P><STRONG><a name="[93]"></a>PLL_Init</STRONG> (Thumb, 118 bytes, Stack size 0 bytes, pll.o(i.PLL_Init))
@@ -784,7 +784,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[8a]"></a>main</STRONG> (Thumb, 20 bytes, Stack size 0 bytes, pwmtest.o(i.main))
+<P><STRONG><a name="[8a]"></a>main</STRONG> (Thumb, 48 bytes, Stack size 0 bytes, pwmtest.o(i.main))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8 + Unknown Stack Size
 <LI>Call Chain = main &rArr; PortF_Init
 </UL>

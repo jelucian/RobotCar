@@ -55,7 +55,7 @@ void PortD_Init(void){
 	
 	//M1
 	PWM1_0_LOAD_R = 40000 - 1;	//M1 generator 1 for output 1 output b
-	PWM1_0_CMPB_R = 20000 - 1;	//set 50% duty cycle for generator 3 output b
+	PWM1_0_CMPB_R = 20000 - 1;	//set 0% duty cycle for generator 3 output b
 	
 	PWM1_0_CTL_R &= ~0x00000010; //set mode to countdown
 	PWM1_0_CTL_R |=  0x00000001; //enable generator
@@ -66,7 +66,7 @@ void PortD_Init(void){
 	
 	//M0
 	PWM0_3_LOAD_R = 40000 - 1;//M0 generator 3 for output 6 output a
-	PWM0_3_LOAD_R = 20000 - 1;//50% duty cycle
+	PWM0_3_CMPA_R = 20000 - 1;//0% duty cycle
 	
 	PWM0_3_CTL_R &= ~0x00000010; //set mode to countdown
 	PWM0_3_CTL_R |=  0x00000001; //enable generator
@@ -81,30 +81,66 @@ void PortD_Init(void){
 void GPIOPortF_Handler(void){ // called on touch of either SW1 or SW2
   if(GPIO_PORTF_RIS_R&0x01){  // SW2 touch controls direction
 		GPIO_PORTF_ICR_R = 0x01;  // acknowledge flag0
-		GPIO_PORTD_DATA_R = GPIO_PORTD_DATA_R ^ 0x0C;
+		
+		//disable clocks
+		PWM1_ENABLE_R &= ~0x02;
+		PWM0_ENABLE_R &= ~0x40;
+		//toggle direction - issues
+		
+		//GPIO_PORTD_DATA_R = GPIO_PORTD_DATA_R ^ 0x0C;
+		
+		//enable clocks
+		PWM1_ENABLE_R |= 0x02;
+		PWM0_ENABLE_R |= 0x40;
   }
   if(GPIO_PORTF_RIS_R&0x10){  // SW1 touch controls speed
     GPIO_PORTF_ICR_R = 0x10;  // acknowledge flag4
-		if(speed == 100)
-			speed = 0;
-		else if (speed == 0)
+		if(speed == 100){
+			speed = 0;			
+			//disable clocks
+			PWM1_ENABLE_R &= ~0x02;
+			PWM0_ENABLE_R &= ~0x40;
+			
+		}
+		else if (speed == 0){
 			speed = 25;
-		else
-			speed = speed * 2;
+			//change duty cycle to 10%
+			PWM0_3_CMPA_R = 10000 - 1;
+			PWM1_0_CMPB_R = 10000 - 1;
+			//enable clocks
+			PWM1_ENABLE_R |= 0x02;
+			PWM0_ENABLE_R |= 0x40;
+		}
+		else if(speed == 25){
+			speed = 50;			
+			
+			//double duty cycle
+			PWM0_3_CMPA_R = 20000 - 1;
+			PWM1_0_CMPB_R = 20000 - 1;
+		}
+		else{
+			speed = 100;			
+			
+			//double duty cycle
+			PWM0_3_CMPA_R = 40000 - 1;
+			PWM1_0_CMPB_R = 40000 - 1;
+		}
   }
-	
+//			PWM0_3_CMPA_R = 
+//			PWM1_0_CMPB_R = 
+
 	//Regardless of what is clicked, it is best to assume LED changed
 	//Check if speed = 0, if so set light to red
 	//else, set light according to the direction 1 meaning green 0 meaning blue
 	if(speed == 0)
 		GPIO_PORTF_DATA_R = 0x02;
 	else
-		GPIO_PORTF_DATA_R = GPIO_PORTD_DATA_R & 0x0C;
+		GPIO_PORTF_DATA_R = 0x04;
+	//GPIO_PORTD_DATA_R & 0x0C;
 
 	//Edit for future usage: Turn direction into a two bit GPIO_PORTA_DATA_R for bits 3 and 2 so it can easily connect to LED
 }
 
-//Aaron: please make this look neater for readability and debugging purposes
 void PortF_Init(void){  
 	unsigned long volatile delay;
   SYSCTL_RCGC2_R |= 0x00000020; 			// enable Port F clock
