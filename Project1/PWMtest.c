@@ -24,11 +24,14 @@
 #include "PLL.h"
 #include "PWM.h"
 
+
 void WaitForInterrupt(void);  // low power mode
 
 int main(void){
   PLL_Init();                      // bus clock at 80 MHz
-	PWM1F_Init(40000,40000); // initialize 1000Hz, 100% duty
+	PortD_Init();
+	PortF_Init();
+	//PWM1F_Init(40000,40000); // initialize 1000Hz, 100% duty
 //  PWM0_Duty(4000);    // 10%
 //  PWM0_Duty(10000);   // 25%
 //  PWM0_Duty(30000);   // 75%

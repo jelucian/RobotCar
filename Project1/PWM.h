@@ -40,8 +40,11 @@
 //                = BusClock/2 
 //                = 80 MHz/2 = 40 MHz (in this example)
 // Output on PB7/M0PWM1
-void PWM1F_Init(uint16_t period, uint16_t duty); 
 
 // change duty cycle of PB7
 // duty is number of PWM clock cycles output is high  (2<=duty<=period-1)
-void PWM1F_Duty(uint16_t duty);
+void PortD_Init(void);
+
+void PortF_Init(void);
+
+
