@@ -24,7 +24,8 @@
 #define PWM_0_GENB_ACTLOAD_ZERO 0x00000008  // Set the output signal to 0
 
 int speed; 
-char dir = 0xFF;
+int dir = 1;
+int val = 998;
 
 void PortD_Init(void){
 	unsigned long volatile delay;
@@ -80,16 +81,33 @@ void PortD_Init(void){
 
 //interrupt handler
 void GPIOPortF_Handler(void){ // called on touch of either SW1 or SW2
-  
+
 	if(GPIO_PORTF_RIS_R&0x01){  // SW2 touch controls direction
 			GPIO_PORTF_ICR_R = 0x01;  // acknowledge flag0
-			GPIO_PORTF_DATA_R = 0x0E;//white
-			dir ^= 0xFF;
-			GPIO_PORTC_DATA_R = dir;
+			//GPIO_PORTF_DATA_R = 0x0E;//white		
+			
+			dir ^= 1;
+			GPIO_PORTC_DATA_R ^= 0xFF;
+		
+			val = 1000 - val;
+			/*if(val == 998)
+				val = 2;
+			else if(val ==300)
+				val = 700;
+			else if(val ==200)
+				val = 800;
+			else if(val == 2)
+				val = 998;
+			else if(val == 700)
+				val = 300;
+			else
+				val = 200;
+			*/
+
   }
   
-	if(GPIO_PORTF_RIS_R&0x10){  // SW1 touch controls speed
-			GPIO_PORTF_ICR_R = 0x10;  // acknowledge flag4
+	if(GPIO_PORTF_RIS_R&0x10 /*|| GPIO_PORTF_RIS_R&0x01*/){  // SW1 touch controls speed
+			GPIO_PORTF_ICR_R = 0x11;  // acknowledge flag4
 		
 		if(speed == 100){
 			GPIO_PORTF_DATA_R = 0x02; //red
@@ -97,8 +115,16 @@ void GPIOPortF_Handler(void){ // called on touch of either SW1 or SW2
 			speed = 0;			
 			//GPIO_PORTD_DATA_R |= 0x0C;
 
-			PWM0_3_CMPA_R = 998;
-			PWM1_0_CMPB_R = 998;
+			if(dir == 1){
+				//PWM0_3_CMPA_R = 998;
+				//PWM1_0_CMPB_R = 998;
+				val = 998;
+			}
+			else{
+				//PWM0_3_CMPA_R = 2;
+				//PWM1_0_CMPB_R = 2;
+				val = 2;
+			}
 			
 		}
 		else if (speed == 0){
@@ -106,8 +132,17 @@ void GPIOPortF_Handler(void){ // called on touch of either SW1 or SW2
 			
 			speed = 25;
 			//GPIO_PORTD_DATA_R &= ~0x0C;
-			PWM0_3_CMPA_R = 300;
-			PWM1_0_CMPB_R = 300;
+			if(dir == 1){
+			//PWM0_3_CMPA_R = 300;
+			//PWM1_0_CMPB_R = 300;	
+					val = 300;
+			}
+			else{
+			//PWM0_3_CMPA_R = 700;
+			//PWM1_0_CMPB_R = 700;
+					val = 700;
+			}
+
 
 		}
 		else if(speed == 25){
@@ -115,26 +150,39 @@ void GPIOPortF_Handler(void){ // called on touch of either SW1 or SW2
 			
 			speed = 50;			
 			//GPIO_PORTD_DATA_R |= 0x0C;
+			if(dir == 1){	
+			//PWM0_3_CMPA_R = 200;
+			//PWM1_0_CMPB_R = 200;	
+					val = 200;
+			}
+			else{
+			//PWM0_3_CMPA_R = 800;
+			//PWM1_0_CMPB_R = 800;	
+					val = 800;
+			}
 
-			PWM0_3_CMPA_R = 200;
-			PWM1_0_CMPB_R = 200;
 		}
 		else{
 			GPIO_PORTF_DATA_R = 0x0A; //yellow
 		
 			speed = 100;			
 			//GPIO_PORTD_DATA_R &= ~0x0C;
-
-			PWM0_3_CMPA_R = 2;
-			PWM1_0_CMPB_R = 2;
+			if(dir == 1){
+			//PWM0_3_CMPA_R = 2;
+			//PWM1_0_CMPB_R = 2;
+					val = 2;
+			}
+			else{
+			//PWM0_3_CMPA_R = 998;
+			//PWM1_0_CMPB_R = 998;
+					val = 998;
+			}
 		}
   }
 	
 
-
-
-	
-	
+	PWM0_3_CMPA_R = val;
+	PWM1_0_CMPB_R = val;
 	// Color    LED(s) PortF
 // dark     ---    0
 // red      R--    0x02
@@ -168,9 +216,8 @@ void PortF_Init(void){
 	//Configuration of GPIO PORT F switches and LED
 	GPIO_PORTF_LOCK_R 	=  0x4C4F434B; 	// unlock GPIO Port F
   GPIO_PORTF_PCTL_R  &= ~0x000FFFFF; 	// configure Port F as GPIO
-	GPIO_PORTF_AMSEL_R &= ~0x1F;  			// disable analog functionality for Port F
+	GPIO_PORTF_AMSEL_R  =  0x00;  			// disable analog functionality for Port F
 	
-	GPIO_PORTF_DEN_R   |=  0x1F;     		// enable digital I/O for Port F
   GPIO_PORTF_CR_R     =  0x1F;      	// allow changes to Port F (5 bits)
 	
   GPIO_PORTF_DIR_R   &= ~0x11;    		// make PF4 and PF0 inputs (onboard switch buttons)
@@ -179,7 +226,8 @@ void PortF_Init(void){
 	GPIO_PORTF_DIR_R   |=  0x0E;				// make PF1, PF2, and PF3 outputs (LED display)
 	
 	GPIO_PORTF_AFSEL_R &= ~0x1F;  			// disable alternate functions for Port F
-	
+	GPIO_PORTF_DEN_R   |=  0x1F;     		// enable digital I/O for Port F
+
 	
 	//Interrupt Logic
   GPIO_PORTF_IS_R 	 &= ~0x11;     		// PF4 & PF0 is edge-sensitive
