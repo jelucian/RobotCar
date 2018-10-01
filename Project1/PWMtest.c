@@ -46,8 +46,8 @@ int main(void){
   PLL_Init();                      // bus clock at 80 MHz
 	PortD_Init();
 	PortF_Init();
-	GPIO_PORTD_DATA_R &= ~0x0C; //manually set direction
-	GPIO_PORTD_DATA_R |=  0x08;
+	PortC_Init();
+
 	
 	//PWM1F_Init(40000,40000); // initialize 1000Hz, 100% duty
 //  PWM0_Duty(4000);    // 10%

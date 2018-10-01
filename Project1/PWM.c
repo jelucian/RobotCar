@@ -15,7 +15,7 @@
 		PD2 for dir A - GPIO
 		PD3 for dir B - GPIO
  */
- 
+#include "PLL.h"
 #include <stdint.h>
 #include "tm4c123gh6pm.h"
 #define PWM_0_GENA_ACTCMPAD_ONE 0x000000C0  // Set the output signal to 1
@@ -24,6 +24,7 @@
 #define PWM_0_GENB_ACTLOAD_ZERO 0x00000008  // Set the output signal to 0
 
 int speed; 
+char dir = 0xFF;
 
 void PortD_Init(void){
 	unsigned long volatile delay;
@@ -54,8 +55,8 @@ void PortD_Init(void){
 	SYSCTL_RCC_R |=  0x00000000; //set bits 19-17 to 0, for divider of 2
 	
 	//M1
-	PWM1_0_LOAD_R = 40000 - 1;	//M1 generator 1 for output 1 output b
-	PWM1_0_CMPB_R = 20000 - 1;	//set 0% duty cycle for generator 3 output b
+	PWM1_0_LOAD_R = 1000 - 1;	//M1 generator 1 for output 1 output b
+	PWM1_0_CMPB_R = 998;	//set 0% duty cycle for generator 3 output b
 	
 	PWM1_0_CTL_R &= ~0x00000010; //set mode to countdown
 	PWM1_0_CTL_R |=  0x00000001; //enable generator
@@ -65,8 +66,8 @@ void PortD_Init(void){
 	PWM1_ENABLE_R |= 0x02; // enable output 1 of module 1
 	
 	//M0
-	PWM0_3_LOAD_R = 40000 - 1;//M0 generator 3 for output 6 output a
-	PWM0_3_CMPA_R = 20000 - 1;//0% duty cycle
+	PWM0_3_LOAD_R = 1000 - 1;//M0 generator 3 for output 6 output a
+	PWM0_3_CMPA_R = 998;//0% duty cycle
 	
 	PWM0_3_CTL_R &= ~0x00000010; //set mode to countdown
 	PWM0_3_CTL_R |=  0x00000001; //enable generator
@@ -79,65 +80,82 @@ void PortD_Init(void){
 
 //interrupt handler
 void GPIOPortF_Handler(void){ // called on touch of either SW1 or SW2
-  if(GPIO_PORTF_RIS_R&0x01){  // SW2 touch controls direction
-		GPIO_PORTF_ICR_R = 0x01;  // acknowledge flag0
-		
-		//disable clocks
-		PWM1_ENABLE_R &= ~0x02;
-		PWM0_ENABLE_R &= ~0x40;
-		//toggle direction - issues
-		
-		//GPIO_PORTD_DATA_R = GPIO_PORTD_DATA_R ^ 0x0C;
-		
-		//enable clocks
-		PWM1_ENABLE_R |= 0x02;
-		PWM0_ENABLE_R |= 0x40;
+  
+	if(GPIO_PORTF_RIS_R&0x01){  // SW2 touch controls direction
+			GPIO_PORTF_ICR_R = 0x01;  // acknowledge flag0
+			GPIO_PORTF_DATA_R = 0x0E;//white
+			dir ^= 0xFF;
+			GPIO_PORTC_DATA_R = dir;
   }
-  if(GPIO_PORTF_RIS_R&0x10){  // SW1 touch controls speed
-    GPIO_PORTF_ICR_R = 0x10;  // acknowledge flag4
+  
+	if(GPIO_PORTF_RIS_R&0x10){  // SW1 touch controls speed
+			GPIO_PORTF_ICR_R = 0x10;  // acknowledge flag4
+		
 		if(speed == 100){
+			GPIO_PORTF_DATA_R = 0x02; //red
+
 			speed = 0;			
-			//disable clocks
-			PWM1_ENABLE_R &= ~0x02;
-			PWM0_ENABLE_R &= ~0x40;
+			//GPIO_PORTD_DATA_R |= 0x0C;
+
+			PWM0_3_CMPA_R = 998;
+			PWM1_0_CMPB_R = 998;
 			
 		}
 		else if (speed == 0){
+			GPIO_PORTF_DATA_R = 0x04; ////blue
+			
 			speed = 25;
-			//change duty cycle to 10%
-			PWM0_3_CMPA_R = 10000 - 1;
-			PWM1_0_CMPB_R = 10000 - 1;
-			//enable clocks
-			PWM1_ENABLE_R |= 0x02;
-			PWM0_ENABLE_R |= 0x40;
+			//GPIO_PORTD_DATA_R &= ~0x0C;
+			PWM0_3_CMPA_R = 300;
+			PWM1_0_CMPB_R = 300;
+
 		}
 		else if(speed == 25){
-			speed = 50;			
+			GPIO_PORTF_DATA_R = 0x08; //green
 			
-			//double duty cycle
-			PWM0_3_CMPA_R = 20000 - 1;
-			PWM1_0_CMPB_R = 20000 - 1;
+			speed = 50;			
+			//GPIO_PORTD_DATA_R |= 0x0C;
+
+			PWM0_3_CMPA_R = 200;
+			PWM1_0_CMPB_R = 200;
 		}
 		else{
+			GPIO_PORTF_DATA_R = 0x0A; //yellow
+		
 			speed = 100;			
-			
-			//double duty cycle
-			PWM0_3_CMPA_R = 40000 - 1;
-			PWM1_0_CMPB_R = 40000 - 1;
+			//GPIO_PORTD_DATA_R &= ~0x0C;
+
+			PWM0_3_CMPA_R = 2;
+			PWM1_0_CMPB_R = 2;
 		}
   }
+	
+
+
+
+	
+	
+	// Color    LED(s) PortF
+// dark     ---    0
+// red      R--    0x02
+// blue     --B    0x04
+// green    -G-    0x08
+// yellow   RG-    0x0A
+// sky blue -GB    0x0C
+// white    RGB    0x0E
+// pink     R-B    0x06
 //			PWM0_3_CMPA_R = 
 //			PWM1_0_CMPB_R = 
-
 	//Regardless of what is clicked, it is best to assume LED changed
 	//Check if speed = 0, if so set light to red
 	//else, set light according to the direction 1 meaning green 0 meaning blue
+	/*
 	if(speed == 0)
 		GPIO_PORTF_DATA_R = 0x02;
 	else
 		GPIO_PORTF_DATA_R = 0x04;
 	//GPIO_PORTD_DATA_R & 0x0C;
-
+*/
 	//Edit for future usage: Turn direction into a two bit GPIO_PORTA_DATA_R for bits 3 and 2 so it can easily connect to LED
 }
 
@@ -174,4 +192,25 @@ void PortF_Init(void){
 	
   NVIC_PRI7_R = (NVIC_PRI7_R&0xFF00FFFF)|0x00400000; 	// priority 2 interrupt for switches				 
   NVIC_EN0_R  = 0x40000000;      			// enable interrupt 30 in NVIC
+}
+
+//PC4 & 5
+void PortC_Init(void){
+	unsigned long volatile delay;
+	SYSCTL_RCGC2_R |= 0x00000004; //enable Port C clock
+	delay = SYSCTL_RCGC2_R;
+	
+	GPIO_PORTC_AMSEL_R &= ~0x30; 	//disable analog for PC4,5
+
+	GPIO_PORTC_PCTL_R &= ~0x00FF0000;	//make PC4,5 GPIO
+	GPIO_PORTC_PCTL_R &= ~0x00FF0000;	//clear PC4,5
+
+	GPIO_PORTC_DIR_R |= 0x30;	//make PC4,5 outputs
+	
+	GPIO_PORTC_AFSEL_R &= ~0x30; //disable alternate functions PC4,5
+	
+	GPIO_PORTC_PUR_R |= 0x30; //enable pull up resistors PC4,5
+	
+	GPIO_PORTC_DEN_R |= 0x30; //enable digital I/O on PC4,5
+	
 }
