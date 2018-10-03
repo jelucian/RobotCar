@@ -84,97 +84,68 @@ void GPIOPortF_Handler(void){ // called on touch of either SW1 or SW2
 
 	if(GPIO_PORTF_RIS_R&0x01){  // SW2 touch controls direction
 			GPIO_PORTF_ICR_R = 0x01;  // acknowledge flag0
-			//GPIO_PORTF_DATA_R = 0x0E;//white		
 			
 			dir ^= 1;
 			GPIO_PORTC_DATA_R ^= 0xFF;
+			if(speed != 0)
+				GPIO_PORTF_DATA_R ^= 0x0C;// toggle blue and green
+			else
+				GPIO_PORTF_DATA_R = 0x02; //red
 		
 			val = 1000 - val;
-			/*if(val == 998)
-				val = 2;
-			else if(val ==300)
-				val = 700;
-			else if(val ==200)
-				val = 800;
-			else if(val == 2)
-				val = 998;
-			else if(val == 700)
-				val = 300;
-			else
-				val = 200;
-			*/
 
   }
   
-	if(GPIO_PORTF_RIS_R&0x10 /*|| GPIO_PORTF_RIS_R&0x01*/){  // SW1 touch controls speed
+	if(GPIO_PORTF_RIS_R&0x10){  // SW1 touch controls speed
 			GPIO_PORTF_ICR_R = 0x11;  // acknowledge flag4
 		
 		if(speed == 100){
 			GPIO_PORTF_DATA_R = 0x02; //red
-
 			speed = 0;			
-			//GPIO_PORTD_DATA_R |= 0x0C;
-
 			if(dir == 1){
-				//PWM0_3_CMPA_R = 998;
-				//PWM1_0_CMPB_R = 998;
 				val = 998;
 			}
 			else{
-				//PWM0_3_CMPA_R = 2;
-				//PWM1_0_CMPB_R = 2;
 				val = 2;
 			}
 			
 		}
 		else if (speed == 0){
-			GPIO_PORTF_DATA_R = 0x04; ////blue
+			if(dir == 1)
+				GPIO_PORTF_DATA_R = 0x04; ////blue
+			else
+				GPIO_PORTF_DATA_R = 0x08; //green
 			
 			speed = 25;
-			//GPIO_PORTD_DATA_R &= ~0x0C;
 			if(dir == 1){
-			//PWM0_3_CMPA_R = 300;
-			//PWM1_0_CMPB_R = 300;	
 					val = 300;
 			}
 			else{
-			//PWM0_3_CMPA_R = 700;
-			//PWM1_0_CMPB_R = 700;
 					val = 700;
 			}
 
 
 		}
 		else if(speed == 25){
-			GPIO_PORTF_DATA_R = 0x08; //green
+			//GPIO_PORTF_DATA_R = 0x08; //green
 			
 			speed = 50;			
-			//GPIO_PORTD_DATA_R |= 0x0C;
 			if(dir == 1){	
-			//PWM0_3_CMPA_R = 200;
-			//PWM1_0_CMPB_R = 200;	
 					val = 200;
 			}
-			else{
-			//PWM0_3_CMPA_R = 800;
-			//PWM1_0_CMPB_R = 800;	
+			else{	
 					val = 800;
 			}
 
 		}
 		else{
-			GPIO_PORTF_DATA_R = 0x0A; //yellow
+			//GPIO_PORTF_DATA_R = 0x0A; //yellow
 		
 			speed = 100;			
-			//GPIO_PORTD_DATA_R &= ~0x0C;
 			if(dir == 1){
-			//PWM0_3_CMPA_R = 2;
-			//PWM1_0_CMPB_R = 2;
 					val = 2;
 			}
 			else{
-			//PWM0_3_CMPA_R = 998;
-			//PWM1_0_CMPB_R = 998;
 					val = 998;
 			}
 		}
