@@ -12,8 +12,8 @@
 		PF3 - green
 		PF4 - sw1 - speed
 		
-		PD2 for dir A - GPIO
-		PD3 for dir B - GPIO
+		PC4 for dir A - GPIO
+		PC5 for dir B - GPIO
  */
 #include "PLL.h"
 #include <stdint.h>
@@ -87,19 +87,19 @@ void GPIOPortF_Handler(void){ // called on touch of either SW1 or SW2
 			
 			dir ^= 1;
 			GPIO_PORTC_DATA_R ^= 0xFF;
-			if(speed != 0)
+			if(speed != 0)//toggles blue and green only if car is moving
 				GPIO_PORTF_DATA_R ^= 0x0C;// toggle blue and green
-			else
+			else//sets red LED if car is off
 				GPIO_PORTF_DATA_R = 0x02; //red
 		
-			val = 1000 - val;
+			val = 1000 - val;//invert duty cycle when direction is switched
 
   }
   
 	if(GPIO_PORTF_RIS_R&0x10){  // SW1 touch controls speed
 			GPIO_PORTF_ICR_R = 0x11;  // acknowledge flag4
 		
-		if(speed == 100){
+		if(speed == 100){//max speed changes to 0 speed
 			GPIO_PORTF_DATA_R = 0x02; //red
 			speed = 0;			
 			if(dir == 1){
@@ -108,40 +108,32 @@ void GPIOPortF_Handler(void){ // called on touch of either SW1 or SW2
 			else{
 				val = 2;
 			}
-			
 		}
-		else if (speed == 0){
-			if(dir == 1)
+		else if (speed == 0){//car not moving
+			if(dir == 1)//forward
 				GPIO_PORTF_DATA_R = 0x04; ////blue
-			else
+			else//backward
 				GPIO_PORTF_DATA_R = 0x08; //green
 			
-			speed = 25;
+			speed = 25;//25% speed
 			if(dir == 1){
 					val = 300;
 			}
 			else{
 					val = 700;
 			}
-
-
 		}
 		else if(speed == 25){
-			//GPIO_PORTF_DATA_R = 0x08; //green
-			
-			speed = 50;			
+			speed = 50;//change to 50% speed
 			if(dir == 1){	
 					val = 200;
 			}
 			else{	
 					val = 800;
 			}
-
 		}
-		else{
-			//GPIO_PORTF_DATA_R = 0x0A; //yellow
-		
-			speed = 100;			
+		else{		
+			speed = 100;	//change to maxspeed		
 			if(dir == 1){
 					val = 2;
 			}
@@ -150,32 +142,9 @@ void GPIOPortF_Handler(void){ // called on touch of either SW1 or SW2
 			}
 		}
   }
-	
-
+	//set duty cycle every time a button is pressed
 	PWM0_3_CMPA_R = val;
 	PWM1_0_CMPB_R = val;
-	// Color    LED(s) PortF
-// dark     ---    0
-// red      R--    0x02
-// blue     --B    0x04
-// green    -G-    0x08
-// yellow   RG-    0x0A
-// sky blue -GB    0x0C
-// white    RGB    0x0E
-// pink     R-B    0x06
-//			PWM0_3_CMPA_R = 
-//			PWM1_0_CMPB_R = 
-	//Regardless of what is clicked, it is best to assume LED changed
-	//Check if speed = 0, if so set light to red
-	//else, set light according to the direction 1 meaning green 0 meaning blue
-	/*
-	if(speed == 0)
-		GPIO_PORTF_DATA_R = 0x02;
-	else
-		GPIO_PORTF_DATA_R = 0x04;
-	//GPIO_PORTD_DATA_R & 0x0C;
-*/
-	//Edit for future usage: Turn direction into a two bit GPIO_PORTA_DATA_R for bits 3 and 2 so it can easily connect to LED
 }
 
 void PortF_Init(void){  
@@ -183,7 +152,6 @@ void PortF_Init(void){
   SYSCTL_RCGC2_R |= 0x00000020; 			// enable Port F clock
   delay = SYSCTL_RCGC2_R;
 	
-
 	//Configuration of GPIO PORT F switches and LED
 	GPIO_PORTF_LOCK_R 	=  0x4C4F434B; 	// unlock GPIO Port F
   GPIO_PORTF_PCTL_R  &= ~0x000FFFFF; 	// configure Port F as GPIO

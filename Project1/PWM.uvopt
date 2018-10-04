@@ -200,7 +200,7 @@
       <Focus>0</Focus>
       <ColumnNumber>11</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>616</TopLine>
+      <TopLine>620</TopLine>
       <CurrentLine>636</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\startup.s</PathWithFileName>
@@ -230,10 +230,10 @@
       <FileType>1</FileType>
       <tvExp>1</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>23</ColumnNumber>
+      <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>96</TopLine>
-      <CurrentLine>92</CurrentLine>
+      <TopLine>163</TopLine>
+      <CurrentLine>1</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\PWM.c</PathWithFileName>
       <FilenameWithoutPath>PWM.c</FilenameWithoutPath>
@@ -246,10 +246,10 @@
       <FileType>1</FileType>
       <tvExp>1</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
+      <ColumnNumber>19</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>21</TopLine>
-      <CurrentLine>39</CurrentLine>
+      <TopLine>1</TopLine>
+      <CurrentLine>19</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\PWMtest.c</PathWithFileName>
       <FilenameWithoutPath>PWMtest.c</FilenameWithoutPath>
