@@ -64,7 +64,7 @@
 // Contrast value 0xB1 looks good on red SparkFun
 // and 0xB8 looks good on blue Nokia 5110.
 // Adjust this from 0xA0 (lighter) to 0xCF (darker) for your display.
-#define CONTRAST                0xB9
+#define CONTRAST                0xBF
 
 // This table contains the hex values that represent pixels
 // for a font that is 5 pixels wide and 8 pixels high
@@ -202,7 +202,7 @@ void Nokia5110_OutChar(unsigned char data);
 // inputs: ptr  pointer to NULL-terminated ASCII string
 // outputs: none
 // assumes: LCD is in default horizontal addressing mode (V = 0)
-void Nokia5110_OutString(unsigned char *ptr);
+void Nokia5110_OutString(char *ptr);
 
 //********Nokia5110_OutUDec*****************
 // Output a 16-bit number in unsigned decimal format with a

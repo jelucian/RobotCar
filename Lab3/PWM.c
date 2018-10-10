@@ -18,7 +18,7 @@
 #include "PLL.h"
 #include <stdint.h>
 #include "tm4c123gh6pm.h"
-//#include "Nokia5110.h"
+#include "Nokia5110.h"
 #define PWM_0_GENA_ACTCMPAD_ONE 0x000000C0  // Set the output signal to 1
 #define PWM_0_GENA_ACTLOAD_ZERO 0x00000008  // Set the output signal to 0
 #define PWM_0_GENB_ACTCMPBD_ONE 0x00000C00  // Set the output signal to 1
@@ -98,7 +98,7 @@ void GPIOPortF_Handler(void){ // called on touch of either SW1 or SW2
 		if(prev_s == current_s) //If the state is the same, allow change, if not, still debouncing
 			current_s = 1;
 	}	
-	
+	Nokia5110_SetCursor(10, 5);
 	if((InB==0x00)&&(current_s == 1)&&(prev_s == current_s)){  // SW2 touch controls direction
 			dir ^= 1;
 			GPIO_PORTC_DATA_R ^= 0xFF;
@@ -109,16 +109,19 @@ void GPIOPortF_Handler(void){ // called on touch of either SW1 or SW2
 		
 			val = 1000 - val;//invert duty cycle when direction is switched
 
-			/*
-			Nokia5110_SetCursor(5, 10);
+			Nokia5110_SetCursor(10, 5);
+			Nokia5110_SetCursor(10, 5);
+			Nokia5110_SetCursor(10, 5);
 			if(dir == 1)//forward
 				Nokia5110_OutChar('F');
 			else//backward
-				Nokia5110_OutChar('B');*/
+				Nokia5110_OutChar('B');
   }
-  
+  Nokia5110_SetCursor(4, 5);
 	if((InA==0x00)&&(current_s == 1)&&(prev_s == current_s)){  // SW1 touch controls speed
-			//Nokia5110_SetCursor(5, 4);
+		Nokia5110_SetCursor(4, 5);
+		Nokia5110_SetCursor(4, 5);
+		Nokia5110_SetCursor(4, 5);
 		if(speed == 100){//max speed changes to 0 speed
 			GPIO_PORTF_DATA_R = 0x02; //red
 			speed = 0;			
@@ -129,7 +132,7 @@ void GPIOPortF_Handler(void){ // called on touch of either SW1 or SW2
 				val = 2;
 			}
 			
-			//Nokia5110_OutString("  0");
+			Nokia5110_OutString("  0");
 		}
 		else if (speed == 0){//car not moving
 			if(dir == 1)//forward
@@ -145,7 +148,7 @@ void GPIOPortF_Handler(void){ // called on touch of either SW1 or SW2
 					val = 700;
 			}
 			
-			//Nokia5110_OutString(" 25");
+			Nokia5110_OutString(" 25");
 		}
 		else if(speed == 25){
 			speed = 50;//change to 50% speed
@@ -156,7 +159,7 @@ void GPIOPortF_Handler(void){ // called on touch of either SW1 or SW2
 					val = 800;
 			}
 			
-			//Nokia5110_OutString(" 50");
+			Nokia5110_OutString(" 50");
 		}
 		else{		
 			speed = 100;	//change to maxspeed		
@@ -167,7 +170,7 @@ void GPIOPortF_Handler(void){ // called on touch of either SW1 or SW2
 					val = 998;
 			}
 			
-			//Nokia5110_OutString("100");
+			Nokia5110_OutString("100");
 		}
   }
 	//set duty cycle every time a button is pressed
@@ -240,11 +243,18 @@ int main(void){
 	PortD_Init();
 	PortF_Init();
 	PortC_Init();
-	/*
 	Nokia5110_Init();
   Nokia5110_Clear();
-	Nokia5110_OutString("************* LCD Test *************Speed:  Dir:------- ---- ");*/
+	Nokia5110_OutString("************* LCD Test *************Speed:  Dir:------- ---- ");
 	GPIO_PORTF_DATA_R = 0x02;
+	Nokia5110_SetCursor(4, 5);
+	Nokia5110_OutString("  0");
+	Nokia5110_SetCursor(10, 5);
+			if(dir == 1)//forward
+				Nokia5110_OutChar('F');
+			else//backward
+				Nokia5110_OutChar('B');
+	
 	current_s=0;
   prev_s = 0;	
 	//Default values

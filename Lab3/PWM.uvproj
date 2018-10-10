@@ -420,11 +420,6 @@
               <FileType>1</FileType>
               <FilePath>.\PWM.c</FilePath>
             </File>
-            <File>
-              <FileName>PWMtest.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\PWMtest.c</FilePath>
-            </File>
           </Files>
         </Group>
       </Groups>
