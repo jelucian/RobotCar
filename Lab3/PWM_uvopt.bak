@@ -213,10 +213,10 @@
       <FileType>1</FileType>
       <tvExp>1</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
+      <ColumnNumber>2</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>147</TopLine>
-      <CurrentLine>178</CurrentLine>
+      <TopLine>104</TopLine>
+      <CurrentLine>115</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\PWM.c</PathWithFileName>
       <FilenameWithoutPath>PWM.c</FilenameWithoutPath>
@@ -227,15 +227,15 @@
       <GroupNumber>1</GroupNumber>
       <FileNumber>4</FileNumber>
       <FileType>1</FileType>
-      <tvExp>1</tvExp>
+      <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>23</ColumnNumber>
+      <ColumnNumber>28</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>18</TopLine>
-      <CurrentLine>41</CurrentLine>
+      <TopLine>171</TopLine>
+      <CurrentLine>182</CurrentLine>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\PWMtest.c</PathWithFileName>
-      <FilenameWithoutPath>PWMtest.c</FilenameWithoutPath>
+      <PathWithFileName>.\Nokia5110.c</PathWithFileName>
+      <FilenameWithoutPath>Nokia5110.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

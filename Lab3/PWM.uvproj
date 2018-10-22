@@ -420,6 +420,11 @@
               <FileType>1</FileType>
               <FilePath>.\PWM.c</FilePath>
             </File>
+            <File>
+              <FileName>Nokia5110.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Nokia5110.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>
