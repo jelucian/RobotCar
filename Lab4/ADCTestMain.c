@@ -38,9 +38,15 @@ void WaitForInterrupt(void);  // low power mode
 
 volatile unsigned long ADCvalue;
 volatile float distance;
-float constA = 48610.0551;
-float constB = -11.8386369;
+float constA = 32914.3622;
+float constB = 0.43923022;
 unsigned int distance2;
+
+int i = 0;
+int tableADCValue[13] = {4095, 3775,2400,1770,1330,1064,915,805,740,700, 630, 590, 560};
+int tableDistance[13] = {7, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65};
+int indexCheck = -1;
+float distanceFromTable = 0;
 // The digital number ADCvalue is a representation of the voltage on PE4 
 // voltage  ADCvalue
 // 0.00V     0
@@ -53,7 +59,7 @@ int main(void){unsigned long volatile delay;
   ADC0_InitSWTriggerSeq3_Ch1();         // ADC initialization PE2/AIN1
 	Nokia5110_Init();
   Nokia5110_Clear();
-	Nokia5110_OutString("************* LCD Test *************Dist:   ADC:------- ---- ");
+	Nokia5110_OutString("EQD:       ** LCD Test *************Dist:   ADC:------- ---- ");
 	
 	
   SYSCTL_RCGC2_R |= SYSCTL_RCGC2_GPIOF; // activate port F
@@ -67,8 +73,26 @@ int main(void){unsigned long volatile delay;
   while(1){
     GPIO_PORTF_DATA_R |= 0x04;          // profile
     ADCvalue = ADC0_InSeq3();
+		for(i = 0; i < 12; i++){
+			if(ADCvalue <= tableADCValue[i] && ADCvalue > tableADCValue[i+1])
+				indexCheck = i;
+		}
+		Nokia5110_SetCursor(5,0);
+		if(indexCheck == -1)
+			Nokia5110_OutString("10");
+		else{
+			distanceFromTable = tableDistance[indexCheck] + (ADCvalue - tableADCValue[indexCheck]) 
+											* (tableDistance[indexCheck] - tableDistance[indexCheck+1]) 
+											/ (tableADCValue[indexCheck] - tableADCValue[indexCheck+1]);
+			
+			Nokia5110_OutUDec(distanceFromTable/1);
+		}
 		distance = (constA / ADCvalue) + constB;
-		distance2 = 10 + distance/1;
+		if(ADCvalue > 4000)
+			distance = 0;
+		if(distance < 10)
+			distance = 10;
+		distance2 = distance/1;
 		Nokia5110_SetCursor(0, 5);
 		Nokia5110_OutUDec(distance2);
 		Nokia5110_SetCursor(7, 5);
