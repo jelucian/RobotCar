@@ -73,7 +73,7 @@ void ADC_Init298(void){
   ADC0_SSPRI_R = 0x3210;          // 9) Sequencer 3 is lowest priority
   ADC0_ACTSS_R &= ~0x0004;        // 10) disable sample sequencer 2
   ADC0_EMUX_R &= ~0x0F00;         // 11) seq2 is software trigger
-  ADC0_SSMUX2_R = 0x0892;         // 12) set channels for SS2
+  ADC0_SSMUX2_R = 0x1892;         // 12) set channels for SS2
   ADC0_SSCTL2_R = 0x0600;         // 13) no D0 END0 IE0 TS0 D1 END1 IE1 TS1 D2 TS2, yes END2 IE2
   ADC0_IM_R &= ~0x0004;           // 14) disable SS2 interrupts
   ADC0_ACTSS_R |= 0x0004;         // 15) enable sample sequencer 2
@@ -91,12 +91,12 @@ void ADC_Init298(void){
 // ain2 (PE1) 0 to 4095
 // ain9 (PE4) 0 to 4095
 // ain8 (PE5) 0 to 4095
-void ADC_In298(unsigned long *ain2, unsigned long *ain9, unsigned long *ain8, unsigned long *ain3){
+void ADC_In298(unsigned long *ain2, unsigned long *ain9, unsigned long *ain8, unsigned long *ain1){
   ADC0_PSSI_R = 0x0004;            // 1) initiate SS2
   while((ADC0_RIS_R&0x04)==0){};   // 2) wait for conversion done
   *ain2 = ADC0_SSFIFO2_R&0xFFF;    // 3A) read first result 5
   *ain9 = ADC0_SSFIFO2_R&0xFFF;    // 3B) read second result4
   *ain8 = ADC0_SSFIFO2_R&0xFFF;    // 3C) read third result 2
-	*ain3 = ADC0_SSFIFO2_R&0xFFF;		 // 3D) read fourth result1
+	*ain1 = ADC0_SSFIFO2_R&0xFFF;		 // 3D) read fourth result1
   ADC0_ISC_R = 0x0004;             // 4) acknowledge completion
 }

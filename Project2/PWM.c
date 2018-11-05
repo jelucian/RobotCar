@@ -26,7 +26,7 @@
 #define PWM_0_GENB_ACTLOAD_ZERO 0x00000008  // Set the output signal to 0
 
 
-int speed; 
+int speed, prevSpeed; 
 int dir = 1;
 int val = 998;
 unsigned char prev_s, current_s;	//Debounce logic
@@ -335,10 +335,14 @@ int main(void){
 		
 		
 		Nokia5110_SetCursor(5,3);
+		
 		speed				= 0 + (2900 - ADCvalue4) //ADC @ 0
 								* (100) 
 								/ (2900 - 15); //ADC @ 0 then ADC @ Max
-			
+		if(speed <= prevSpeed + 1 && speed >= prevSpeed - 1){
+			speed = prevSpeed;
+		}
+		
 		Nokia5110_OutUDec(speed);
 		
 		
@@ -354,6 +358,9 @@ int main(void){
 		{
 			value1 = 998;
 			value2 = 998;
+			Nokia5110_SetCursor(5,3);
+			speed = 0;
+			Nokia5110_OutUDec(speed);
 		}
 		else{
 			value1 = ((100 - 100 * (ADCvalue4 / 2900)) * 3 + 700);
@@ -362,10 +369,11 @@ int main(void){
 		
 			value2 = value1;	
 		}
-		
-		
-		
+		prevSpeed = speed;
+		PWM0_3_CMPA_R = value1;
+		PWM1_0_CMPB_R = value2;
 		//Sensor Logics
+		/*
 		if(distance3 <= 10){ //Front Sensor Logic if distance is less than 10
 			if(distance1 <= distance2 + 3 && distance1 <= distance2 - 3){//Turn right
 				value2 = 1000 - value2;
@@ -392,8 +400,7 @@ int main(void){
 		else{GPIO_PORTC_DATA_R = 0x00;}
 		PWM0_3_CMPA_R = value1;
 		PWM1_0_CMPB_R = value2;
-		
-		
+		*/
     for(int delay=0; delay<100000; delay++){};
 		
 		
