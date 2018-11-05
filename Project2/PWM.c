@@ -196,7 +196,7 @@ unsigned int updateADCDistance(unsigned int index, unsigned int place, unsigned 
 	
 	
 		if(distanceCalc <10)
-			distance = 10;
+			distanceCalc = 10;
 		
 		
 		if(distanceCalc >= 51)
