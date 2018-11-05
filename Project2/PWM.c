@@ -29,7 +29,6 @@
 int speed, prevSpeed; 
 int dir = 1;
 int val = 998;
-unsigned char prev_s, current_s;	//Debounce logic
 
 unsigned long ADCvalue1, ADCvalue2, ADCvalue3, ADCvalue4;
 volatile float distance;
@@ -39,7 +38,7 @@ unsigned int distance1, distance2, distance3;
 
 int i = 0;
 int tableADCValue[13] = {4095, 3775,2400,1770,1330,1064,915,805,740,700, 630, 590, 560};
-int tableDistance[13] = {7, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65};
+int tableDistance[13] = {0, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65};
 int indexCheck1, indexCheck2, indexCheck3 = -1;
 float distanceFromTable = 0;
 
@@ -97,138 +96,6 @@ void PortD_Init(void){
 
 
 //interrupt handler
-void GPIOPortF_Handler(void){ // called on touch of either SW1 or SW2
-
-	//unsigned long InA, InB, In;  // input from PF
-	
-	
-	GPIO_PORTF_ICR_R = 0x11;  // acknowledge flags
-	/*
-	In = GPIO_PORTF_DATA_R & 0x11;//Data for debounce
-	InA = GPIO_PORTF_DATA_R& 0x10;//Data for flag SW1
-	InB = GPIO_PORTF_DATA_R& 0x01;//Data for flag SW2
-	
-	if((In == 0x11)&& (current_s==0)){ // zero means SW1 or SW2 is pressed
-		if(prev_s == current_s) //If the state is the same, allow change, if not, still debouncing
-			current_s = 1;
-	}	
-	Nokia5110_SetCursor(10, 5);
-	if((InB==0x00)&&(current_s == 1)&&(prev_s == current_s)){  // SW2 touch controls direction
-			dir ^= 1;
-			GPIO_PORTC_DATA_R ^= 0xFF;
-			if(speed != 0)//toggles blue and green only if car is moving
-				GPIO_PORTF_DATA_R ^= 0x0C;// toggle blue and green
-			else//sets red LED if car is off
-				GPIO_PORTF_DATA_R |= 0x02; //red
-		
-			val = 1000 - val;//invert duty cycle when direction is switched
-
-			Nokia5110_SetCursor(10, 5);
-			Nokia5110_SetCursor(10, 5);
-			Nokia5110_SetCursor(10, 5);
-			if(dir == 1)//forward
-				Nokia5110_OutChar('F');
-			else//backward
-				Nokia5110_OutChar('B');
-  }
-  Nokia5110_SetCursor(4, 5);
-	if((InA==0x00)&&(current_s == 1)&&(prev_s == current_s)){  // SW1 touch controls speed
-		Nokia5110_SetCursor(4, 5);
-		Nokia5110_SetCursor(4, 5);
-		Nokia5110_SetCursor(4, 5);
-		if(speed == 100){//max speed changes to 0 speed
-			GPIO_PORTF_DATA_R = 0x02; //red
-			speed = 0;			
-			if(dir == 1){
-				val = 998;
-			}
-			else{
-				val = 2;
-			}
-			
-			Nokia5110_OutString("  0");
-		}
-		else if (speed == 0){//car not moving
-			if(dir == 1)//forward
-				GPIO_PORTF_DATA_R = 0x04; ////blue
-			else//backward
-				GPIO_PORTF_DATA_R = 0x08; //green
-			
-			speed = 25;//25% speed
-			if(dir == 1){
-					val = 300;
-			}
-			else{
-					val = 700;
-			}
-			
-			Nokia5110_OutString(" 25");
-		}
-		else if(speed == 25){
-			speed = 50;//change to 50% speed
-			if(dir == 1){	
-					val = 200;
-			}
-			else{	
-					val = 800;
-			}
-			
-			Nokia5110_OutString(" 50");
-		}
-		else{		
-			speed = 100;	//change to maxspeed		
-			if(dir == 1){
-					val = 2;
-			}
-			else{
-					val = 998;
-			}
-			
-			Nokia5110_OutString("100");
-		}
-  }
-	//set duty cycle every time a button is pressed
-	//and set the button flag clear if logic is set
-	if((current_s == 1)&&(prev_s == current_s)&&((InB==0x00)||(InA==0x00)))
-	{
-		PWM0_3_CMPA_R = val;
-		PWM1_0_CMPB_R = val;
-		current_s = 0;
-	}
-	*/
-}
-
-
-void PortF_Init(void){  
-	unsigned long volatile delay;
-  SYSCTL_RCGC2_R |= 0x00000020; 			// enable Port F clock
-  delay = SYSCTL_RCGC2_R;
-	
-	//Configuration of GPIO PORT F switches and LED
-	GPIO_PORTF_LOCK_R 	=  0x4C4F434B; 	// unlock GPIO Port F
-  GPIO_PORTF_PCTL_R  &= ~0x000FFFFF; 	// configure Port F as GPIO
-	GPIO_PORTF_AMSEL_R  =  0x00;  			// disable analog functionality for Port F
-	
-  GPIO_PORTF_CR_R     =  0x1F;      	// allow changes to Port F (5 bits)
-	
-  GPIO_PORTF_DIR_R   &= ~0x11;    		// make PF4 and PF0 inputs (onboard switch buttons)
-	GPIO_PORTF_PUR_R   |=  0x11;    		// enable weak pull-up on PF4,0
-	
-	GPIO_PORTF_DIR_R   |=  0x0E;				// make PF1, PF2, and PF3 outputs (LED display)
-	
-	GPIO_PORTF_AFSEL_R &= ~0x1F;  			// disable alternate functions for Port F
-	GPIO_PORTF_DEN_R   |=  0x1F;     		// enable digital I/O for Port F
-
-	
-	//Interrupt Logic
-  GPIO_PORTF_IS_R 	 &= ~0x11;     		// PF4 & PF0 is edge-sensitive
-  GPIO_PORTF_IBE_R   |=  0x11;    		// PF4 & PF0 is both edges
-  GPIO_PORTF_ICR_R    =  0x11;     		// clear flags for PF4 and PF0
-  GPIO_PORTF_IM_R    |=  0x11;      	// arm interrupt on PF4 & PF0
-	
-  NVIC_PRI7_R = (NVIC_PRI7_R&0xFF00FFFF)|0x00400000; 	// priority 2 interrupt for switches				 
-  NVIC_EN0_R  = 0x40000000;      			// enable interrupt 30 in NVIC
-}
 
 //PC4 & 5
 void PortC_Init(void){
@@ -252,24 +119,25 @@ void PortC_Init(void){
 }
 
 void WaitForInterrupt(void);  // low power mode
+void updateADC(void);
+void updateSpeed(void);
+unsigned int updateADCDistance(unsigned int, unsigned int, unsigned long);
 
 int main(void){
   PLL_Init();                      // bus clock at 80 MHz
 	PortD_Init();
-	PortF_Init();
 	PortC_Init();
 	ADC_Init298();
 	Nokia5110_Init();
   Nokia5110_Clear();
-									 //("EQD:        * LCD Test *************Dist:   ADC:------- ----");
-	Nokia5110_OutString("L1:         R2:         F3:         SP:                     ");
-	GPIO_PORTF_DATA_R = 0x02;
-	
-	current_s=0;
-  prev_s = 0;	
-	//Default values
-  while(1){
-							//PE5, PE4, PE2, PE1 (Sensor Left/SensorRight/SensorFront/Potentiomenter)
+	while(1){
+		updateADC();
+		updateSpeed();
+  }
+}
+
+void updateADC(){
+						//PE5, PE4, PE2, PE1 (Sensor Left/SensorRight/SensorFront/Potentiomenter)
     ADC_In298(&ADCvalue4, &ADCvalue2, &ADCvalue3, &ADCvalue1);
 		for(i = 0; i < 12; i++){
 			if(ADCvalue1 <= tableADCValue[i] && ADCvalue1 > tableADCValue[i+1])
@@ -278,63 +146,16 @@ int main(void){
 			
 			if(ADCvalue2 <= tableADCValue[i] && ADCvalue2 > tableADCValue[i+1])
 				indexCheck2 = i;
-			
-			
-			if(ADCvalue3 <= tableADCValue[i] && ADCvalue3 > tableADCValue[i+1])
-				indexCheck3 = i;
 		}
 		
 		
-		
-		
-		
-		
-		Nokia5110_SetCursor(5,0);
-		if(indexCheck1 == -1)
-			Nokia5110_OutString("<10");
-		else{
-			distance1				= tableDistance[indexCheck1] + (ADCvalue1 - tableADCValue[indexCheck1]) 
-											* (tableDistance[indexCheck1] - tableDistance[indexCheck1+1]) 
-											/ (tableADCValue[indexCheck1] - tableADCValue[indexCheck1+1]);
-			if(distance1 >= 51)
-				Nokia5110_OutString("OOR   ");
-			else
-				Nokia5110_OutUDec(distance1);
-		}
-		
-		
-		
-		Nokia5110_SetCursor(5,1);
-		if(indexCheck2 == -1)
-			Nokia5110_OutString("<10");
-		else{
-			distance2				= tableDistance[indexCheck2] + (ADCvalue2 - tableADCValue[indexCheck2]) 
-											* (tableDistance[indexCheck2] - tableDistance[indexCheck2+1]) 
-											/ (tableADCValue[indexCheck2] - tableADCValue[indexCheck2+1]);
-			if(distance2 >= 51)
-				Nokia5110_OutString("OOR   ");
-			else
-				Nokia5110_OutUDec(distance2);
-		}
-		
-		
-		
-		Nokia5110_SetCursor(5,2);
-		if(indexCheck3 == -1)
-			Nokia5110_OutString("<10");
-		else{
-			distance3				= tableDistance[indexCheck3] + (ADCvalue3 - tableADCValue[indexCheck3]) 
-											* (tableDistance[indexCheck3] - tableDistance[indexCheck3+1]) 
-											/ (tableADCValue[indexCheck3] - tableADCValue[indexCheck3+1]);
-			if(distance3 >= 51)
-				Nokia5110_OutString("OOR   ");
-			else
-				Nokia5110_OutUDec(distance3);
-		}
-		
-		
-		
-		Nokia5110_SetCursor(5,3);
+		distance1 = updateADCDistance(indexCheck1, 0, ADCvalue1);
+		distance2 = updateADCDistance(indexCheck2, 1, ADCvalue2);
+
+}
+
+void updateSpeed(){
+	Nokia5110_SetCursor(5,3);
 		
 		speed				= 0 + (2900 - ADCvalue4) //ADC @ 0
 								* (100) 
@@ -345,16 +166,8 @@ int main(void){
 		
 		Nokia5110_OutUDec(speed);
 		
-		
-		
-		//PWM Logic
-		
-		//Speed
-		//3cm give or take
-		//2 = 0; 700 = 1% to 998 = 100%
-		//1000 is value to subtract from to make it negative
 		int value1, value2;
-		if(ADCvalue4 >= 2700) //ADC @0
+		if(ADCvalue4 >= 2000) //ADC @0
 		{
 			value1 = 998;
 			value2 = 998;
@@ -363,61 +176,33 @@ int main(void){
 			Nokia5110_OutUDec(speed);
 		}
 		else{
-			value1 = ((100 - 100 * (ADCvalue4 / 2900)) * 3 + 700);
-			if(value1 < 700)
-				value1 = 700;
-		
+			value1 = 1000 - (speed * 3 + 698);
 			value2 = value1;	
 		}
 		prevSpeed = speed;
 		PWM0_3_CMPA_R = value1;
 		PWM1_0_CMPB_R = value2;
-		//Sensor Logics
-		/*
-		if(distance3 <= 10){ //Front Sensor Logic if distance is less than 10
-			if(distance1 <= distance2 + 3 && distance1 <= distance2 - 3){//Turn right
-				value2 = 1000 - value2;
-				GPIO_PORTC_DATA_R = 0x10;
-			}
-			else if (distance2 <= distance1 + 3 && distance2 <= distance1 - 3){ //Turn left
-				value1 = 1000 - value1;
-				GPIO_PORTC_DATA_R = 0x20;
-			}
-			else{//Stop everything as we are at equilibrium
-				value1 = 2;
-				value2 = 2;
-				GPIO_PORTC_DATA_R = 0x00;
-			}
-		}
-		else if (distance2 <= 10){//Lean left
-			value1 = value1-100;
-			GPIO_PORTC_DATA_R = 0x00;
-		}
-		else if (distance1 <= 10){//Lean right
-			value2 = value2-100;
-			GPIO_PORTC_DATA_R = 0x00;
-		}
-		else{GPIO_PORTC_DATA_R = 0x00;}
-		PWM0_3_CMPA_R = value1;
-		PWM1_0_CMPB_R = value2;
-		*/
+		
     for(int delay=0; delay<100000; delay++){};
-		
-		
-		
-		
-		
-		
-		/*
-    if (prev_s != current_s) {//Debounce logic check
-			unsigned int time = 727240*20/91;  // 0.01sec
-			while(time){
-				time--;
-			}
-			prev_s = current_s;
-		}*/
-  }
 }
 
 
-
+unsigned int updateADCDistance(unsigned int index, unsigned int place, unsigned long ADCValue){
+		Nokia5110_SetCursor(5,place);
+		unsigned int distanceCalc;
+		distanceCalc		= tableDistance[index] + (ADCValue - tableADCValue[index]) 
+										* (tableDistance[index] - tableDistance[index+1]) 
+										/ (tableADCValue[index] - tableADCValue[index+1]);
+	
+	
+		if(distanceCalc <10)
+			distance = 10;
+		
+		
+		if(distanceCalc >= 51)
+			Nokia5110_OutString("OOR   ");
+		else
+			Nokia5110_OutUDec(distanceCalc);
+	
+	return distanceCalc;
+}
