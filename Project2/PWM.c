@@ -167,7 +167,7 @@ void updateSpeed(){
 		Nokia5110_OutUDec(speed);
 		
 		int value1, value2;
-		if(ADCvalue4 >= 2000) //ADC @0
+		if(ADCvalue4 >= 2700) //ADC @0
 		{
 			value1 = 998;
 			value2 = 998;
