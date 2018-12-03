@@ -162,14 +162,33 @@ void updateADC(){
 void updateLogic(){
 		int value1, value2;
 		
-		if(distance1 < distance2 + 3 || distance1 > distance2 - 3) //Logic should dictate straight
+		if(distance1 < distance2 + 3 && distance1 > distance2 - 3) //Logic should dictate straight
 		{
 			value1 = 998;
 			value2 = 998;
 		}
+		else if (distance1 > 50 && distance2 >50){
+					value1 = 998;
+			value2 = 998;
+		
+		}
 		else
 		{
 			if(distance3 <= 15) //Incoming Wall
+			{
+				if(distance1 < distance2)
+				{
+					//Turn Left
+					value1 = 998;
+					value2 = 100;
+				}	
+				else // Turn Right
+				{
+					value1 = 100;
+					value2 = 998;
+				}
+			}
+			else
 			{
 				if(distance1 < distance2)
 				{
@@ -183,25 +202,15 @@ void updateLogic(){
 					value2 = 998;
 				}
 			}
-			else
-			{
-				if(distance1 < distance2)
-				{
-					//Turn Left
-					value1 = 998;
-					value2 = 800;
-				}	
-				else // Turn Right
-				{
-					value1 = 800;
-					value2 = 998;
-				}
-			}
 		}
+		Nokia5110_SetCursor(5,3);
+		Nokia5110_OutUDec(1000-value1);
 		
+		Nokia5110_SetCursor(5,4);
+		Nokia5110_OutUDec(1000-value2);
 	
-		PWM0_3_CMPA_R = value1;
-		PWM1_0_CMPB_R = value2;
+		PWM0_3_CMPA_R = 1000-value1;
+		PWM1_0_CMPB_R = 1000-value2;
 }
 
 
