@@ -291,6 +291,8 @@ void Nokia5110_Clear(void){
     lcdwrite(DATA, 0x00);
   }
   Nokia5110_SetCursor(0, 0);
+									 //("EQD:        * LCD Test *************Dist:   ADC:------- ----");
+	Nokia5110_OutString("L1:         R2:         F3:                                 ");
 }
 
 //********Nokia5110_DrawFullImage*****************
