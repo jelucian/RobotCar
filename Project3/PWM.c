@@ -15,6 +15,33 @@
 		PC4 for dir A - GPIO
 		PC5 for dir B - GPIO
  */
+ 
+ 
+ 
+ 
+ /*
+		Aaron's Task Log:
+		*Turning does not work properly, car does turn right direction, but continues the same direction
+			*It's a circle process, so begins turn in right direction
+			*But does not correct itself to go right direction when in center
+			*turns in circle (may need to try editing the values to turn slower)
+			*Turning Right slower than turning left (motors not on same speed when turning?)
+		+Fixed turning to function correctly
+		=Update: Lowering value fixes it, but will not work on track length (too slow of a correction)
+			*Additionally, it will continue at an angle, it is impossible for it to remain straight
+		+Added correction code
+		-Removed correction code due to improper functionality
+		+Changed values to test it (bouncing rn)
+			
+		*According to other groups, lower pwm, number just needs to be messed with
+		*Turn isn't 90 degrees but more of a curved turn
+		*Zig-Zagging is valid
+ */
+ 
+ 
+ 
+ 
+ 
 #include "PLL.h"
 #include <stdint.h>
 #include "tm4c123gh6pm.h"
@@ -29,6 +56,8 @@
 int speed, prevSpeed; 
 int dir = 1;
 int val = 998;
+int value1, value2;
+		
 
 unsigned long ADCvalue1, ADCvalue2, ADCvalue3, ADCvalue4;
 float constA = 32914.3622;
@@ -160,46 +189,60 @@ void updateADC(){
 }
 
 void updateLogic(){
-		int value1, value2;
-		
-		if(distance1 < distance2 + 3 && distance1 > distance2 - 3) //Logic should dictate straight
+		if(distance1 < distance2 + 8 && distance1 > distance2 - 8) //Logic should dictate straight
 		{
 			value1 = 998;
 			value2 = 998;
+			Nokia5110_SetCursor(5,5);
+			Nokia5110_OutString("Strai");
 		}
-		else if (distance1 > 50 && distance2 >50){
-					value1 = 998;
-			value2 = 998;
-		
+		else if (distance1 > 50 && distance2 >50 && distance3 >50){ // Stop logic
+			//Stop
+			value1 = 2;
+			value2 = 2;
+			Nokia5110_SetCursor(5,5);
+			Nokia5110_OutString("Stop!");
 		}
 		else
 		{
 			if(distance3 <= 15) //Incoming Wall
 			{
-				if(distance1 < distance2)
+				if(distance1 <= distance2 + 8)
 				{
 					//Turn Left
-					value1 = 998;
-					value2 = 100;
+					value1 = 500;
+					value2 = 998;
+					Nokia5110_SetCursor(5,5);
+					Nokia5110_OutString("Left ");
+					//Left
 				}	
 				else // Turn Right
 				{
-					value1 = 100;
-					value2 = 998;
+					value1 = 998;
+					value2 = 500;
+					Nokia5110_SetCursor(5,5);
+					Nokia5110_OutString("Right");
+					//Right
 				}
 			}
 			else
 			{
-				if(distance1 < distance2)
+				if(distance1 <= distance2 + 8)
 				{
 					//Turn Left
-					value1 = 998;
-					value2 = 500;
+					value1 = 700;
+					value2 = 998;
+					Nokia5110_SetCursor(5,5);
+					Nokia5110_OutString("Left ");
+					//Left
 				}	
 				else // Turn Right
 				{
-					value1 = 500;
-					value2 = 998;
+					value1 = 998;
+					value2 = 700;
+					Nokia5110_SetCursor(5,5);
+					Nokia5110_OutString("Right");
+					//Right
 				}
 			}
 		}

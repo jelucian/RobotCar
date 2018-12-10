@@ -28,6 +28,7 @@ Section Cross References
     pwm.o(i.updateADCDistance) refers to nokia5110.o(i.Nokia5110_OutUDec) for Nokia5110_OutUDec
     pwm.o(i.updateADCDistance) refers to pwm.o(.data) for tableDistance
     pwm.o(i.updateLogic) refers to nokia5110.o(i.Nokia5110_SetCursor) for Nokia5110_SetCursor
+    pwm.o(i.updateLogic) refers to nokia5110.o(i.Nokia5110_OutString) for Nokia5110_OutString
     pwm.o(i.updateLogic) refers to nokia5110.o(i.Nokia5110_OutUDec) for Nokia5110_OutUDec
     pwm.o(i.updateLogic) refers to pwm.o(.data) for distance1
     nokia5110.o(i.Nokia5110_Clear) refers to nokia5110.o(i.lcdwrite) for lcdwrite
@@ -280,14 +281,14 @@ Image Symbol Table
     i.updateADC                              0x00000bc8   Section        0  pwm.o(i.updateADC)
     i.updateADCDistance                      0x00000d0c   Section        0  pwm.o(i.updateADCDistance)
     i.updateLogic                            0x00000d98   Section        0  pwm.o(i.updateLogic)
-    .constdata                               0x00000e64   Section      480  nokia5110.o(.constdata)
-    ASCII                                    0x00000e64   Data         480  nokia5110.o(.constdata)
-    .data                                    0x20000000   Section      184  pwm.o(.data)
-    .bss                                     0x200000b8   Section       96  libspace.o(.bss)
-    HEAP                                     0x20000118   Section        0  startup.o(HEAP)
-    STACK                                    0x20000118   Section     1024  startup.o(STACK)
-    HeapMem                                  0x20000118   Data           0  startup.o(HEAP)
-    StackMem                                 0x20000118   Data           0  startup.o(STACK)
+    .constdata                               0x00000fe4   Section      480  nokia5110.o(.constdata)
+    ASCII                                    0x00000fe4   Data         480  nokia5110.o(.constdata)
+    .data                                    0x20000000   Section      196  pwm.o(.data)
+    .bss                                     0x200000c4   Section       96  libspace.o(.bss)
+    HEAP                                     0x20000128   Section        0  startup.o(HEAP)
+    STACK                                    0x20000128   Section     1024  startup.o(STACK)
+    HeapMem                                  0x20000128   Data           0  startup.o(HEAP)
+    StackMem                                 0x20000128   Data           0  startup.o(STACK)
 
     Global Symbols
 
@@ -525,9 +526,9 @@ Image Symbol Table
     main                                     0x00000ba5   Thumb Code    36  pwm.o(i.main)
     updateADC                                0x00000bc9   Thumb Code   276  pwm.o(i.updateADC)
     updateADCDistance                        0x00000d0d   Thumb Code   118  pwm.o(i.updateADCDistance)
-    updateLogic                              0x00000d99   Thumb Code   182  pwm.o(i.updateLogic)
-    Region$$Table$$Base                      0x00001044   Number         0  anon$$obj.o(Region$$Table)
-    Region$$Table$$Limit                     0x00001064   Number         0  anon$$obj.o(Region$$Table)
+    updateLogic                              0x00000d99   Thumb Code   522  pwm.o(i.updateLogic)
+    Region$$Table$$Base                      0x000011c4   Number         0  anon$$obj.o(Region$$Table)
+    Region$$Table$$Limit                     0x000011e4   Number         0  anon$$obj.o(Region$$Table)
     dir                                      0x20000000   Data           4  pwm.o(.data)
     val                                      0x20000004   Data           4  pwm.o(.data)
     constA                                   0x20000008   Data           4  pwm.o(.data)
@@ -539,17 +540,20 @@ Image Symbol Table
     indexCheck3                              0x20000088   Data           4  pwm.o(.data)
     speed                                    0x2000008c   Data           4  pwm.o(.data)
     prevSpeed                                0x20000090   Data           4  pwm.o(.data)
-    ADCvalue1                                0x20000094   Data           4  pwm.o(.data)
-    ADCvalue2                                0x20000098   Data           4  pwm.o(.data)
-    ADCvalue3                                0x2000009c   Data           4  pwm.o(.data)
-    ADCvalue4                                0x200000a0   Data           4  pwm.o(.data)
-    distance1                                0x200000a4   Data           4  pwm.o(.data)
-    distance2                                0x200000a8   Data           4  pwm.o(.data)
-    distance3                                0x200000ac   Data           4  pwm.o(.data)
-    indexCheck1                              0x200000b0   Data           4  pwm.o(.data)
-    indexCheck2                              0x200000b4   Data           4  pwm.o(.data)
-    __libspace_start                         0x200000b8   Data          96  libspace.o(.bss)
-    __temporary_stack_top$libspace           0x20000118   Data           0  libspace.o(.bss)
+    angle                                    0x20000094   Data           4  pwm.o(.data)
+    value1                                   0x20000098   Data           4  pwm.o(.data)
+    value2                                   0x2000009c   Data           4  pwm.o(.data)
+    ADCvalue1                                0x200000a0   Data           4  pwm.o(.data)
+    ADCvalue2                                0x200000a4   Data           4  pwm.o(.data)
+    ADCvalue3                                0x200000a8   Data           4  pwm.o(.data)
+    ADCvalue4                                0x200000ac   Data           4  pwm.o(.data)
+    distance1                                0x200000b0   Data           4  pwm.o(.data)
+    distance2                                0x200000b4   Data           4  pwm.o(.data)
+    distance3                                0x200000b8   Data           4  pwm.o(.data)
+    indexCheck1                              0x200000bc   Data           4  pwm.o(.data)
+    indexCheck2                              0x200000c0   Data           4  pwm.o(.data)
+    __libspace_start                         0x200000c4   Data          96  libspace.o(.bss)
+    __temporary_stack_top$libspace           0x20000124   Data           0  libspace.o(.bss)
 
 
 
@@ -559,9 +563,9 @@ Memory Map of the image
 
   Image Entry point : 0x0000026d
 
-  Load Region LR_1 (Base: 0x00000000, Size: 0x0000111c, Max: 0xffffffff, ABSOLUTE)
+  Load Region LR_1 (Base: 0x00000000, Size: 0x000012a8, Max: 0xffffffff, ABSOLUTE)
 
-    Execution Region ER_RO (Base: 0x00000000, Size: 0x00001064, Max: 0xffffffff, ABSOLUTE)
+    Execution Region ER_RO (Base: 0x00000000, Size: 0x000011e4, Max: 0xffffffff, ABSOLUTE)
 
     Base Addr    Size         Type   Attr      Idx    E Section Name        Object
 
@@ -636,25 +640,26 @@ Memory Map of the image
     0x00000ba4   0x00000024   Code   RO           30    i.main              pwm.o
     0x00000bc8   0x00000144   Code   RO           31    i.updateADC         pwm.o
     0x00000d0c   0x0000008c   Code   RO           32    i.updateADCDistance  pwm.o
-    0x00000d98   0x000000cc   Code   RO           33    i.updateLogic       pwm.o
-    0x00000e64   0x000001e0   Data   RO           91    .constdata          nokia5110.o
-    0x00001044   0x00000020   Data   RO          315    Region$$Table       anon$$obj.o
+    0x00000d98   0x0000024c   Code   RO           33    i.updateLogic       pwm.o
+    0x00000fe4   0x000001e0   Data   RO           91    .constdata          nokia5110.o
+    0x000011c4   0x00000020   Data   RO          315    Region$$Table       anon$$obj.o
 
 
-    Execution Region ER_RW (Base: 0x20000000, Size: 0x000000b8, Max: 0xffffffff, ABSOLUTE)
-
-    Base Addr    Size         Type   Attr      Idx    E Section Name        Object
-
-    0x20000000   0x000000b8   Data   RW           35    .data               pwm.o
-
-
-    Execution Region ER_ZI (Base: 0x200000b8, Size: 0x00000460, Max: 0xffffffff, ABSOLUTE)
+    Execution Region ER_RW (Base: 0x20000000, Size: 0x000000c4, Max: 0xffffffff, ABSOLUTE)
 
     Base Addr    Size         Type   Attr      Idx    E Section Name        Object
 
-    0x200000b8   0x00000060   Zero   RW          192    .bss                c_w.l(libspace.o)
-    0x20000118   0x00000000   Zero   RW            2    HEAP                startup.o
-    0x20000118   0x00000400   Zero   RW            1    STACK               startup.o
+    0x20000000   0x000000c4   Data   RW           35    .data               pwm.o
+
+
+    Execution Region ER_ZI (Base: 0x200000c4, Size: 0x00000464, Max: 0xffffffff, ABSOLUTE)
+
+    Base Addr    Size         Type   Attr      Idx    E Section Name        Object
+
+    0x200000c4   0x00000060   Zero   RW          192    .bss                c_w.l(libspace.o)
+    0x20000124   0x00000004   PAD
+    0x20000128   0x00000000   Zero   RW            2    HEAP                startup.o
+    0x20000128   0x00000400   Zero   RW            1    STACK               startup.o
 
 
 ==============================================================================
@@ -667,11 +672,11 @@ Image component sizes
        308         38          0          0          0       1042   adcswtrigger.o
       1082        146        480          0          0       5203   nokia5110.o
        124          6          0          0          0       1823   pll.o
-      1204        170          0        184          0       4784   pwm.o
+      1588        214          0        196          0       4948   pwm.o
        692        632          0          0       1024        900   startup.o
 
     ----------------------------------------------------------------------
-      3412        992        512        184       1024      13752   Object Totals
+      3796       1036        512        196       1024      13916   Object Totals
          0          0         32          0          0          0   (incl. Generated)
          2          0          0          0          0          0   (incl. Padding)
 
@@ -701,8 +706,8 @@ Image component sizes
          2          0          0          0          0         68   use_no_semi.o
 
     ----------------------------------------------------------------------
-       272         16          0          0         96        576   Library Totals
-         6          0          0          0          0          0   (incl. Padding)
+       272         16          0          0        100        576   Library Totals
+         6          0          0          0          4          0   (incl. Padding)
 
     ----------------------------------------------------------------------
 
@@ -711,7 +716,7 @@ Image component sizes
        266         16          0          0         96        576   c_w.l
 
     ----------------------------------------------------------------------
-       272         16          0          0         96        576   Library Totals
+       272         16          0          0        100        576   Library Totals
 
     ----------------------------------------------------------------------
 
@@ -720,15 +725,15 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-      3684       1008        512        184       1120      13288   Grand Totals
-      3684       1008        512        184       1120      13288   ELF Image Totals
-      3684       1008        512        184          0          0   ROM Totals
+      4068       1052        512        196       1124      13452   Grand Totals
+      4068       1052        512        196       1124      13452   ELF Image Totals
+      4068       1052        512        196          0          0   ROM Totals
 
 ==============================================================================
 
-    Total RO  Size (Code + RO Data)                 4196 (   4.10kB)
-    Total RW  Size (RW Data + ZI Data)              1304 (   1.27kB)
-    Total ROM Size (Code + RO Data + RW Data)       4380 (   4.28kB)
+    Total RO  Size (Code + RO Data)                 4580 (   4.47kB)
+    Total RW  Size (RW Data + ZI Data)              1320 (   1.29kB)
+    Total ROM Size (Code + RO Data + RW Data)       4776 (   4.66kB)
 
 ==============================================================================
 
