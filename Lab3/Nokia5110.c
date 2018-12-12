@@ -3,7 +3,11 @@
 // Use SSI0 to send an 8-bit code to the Nokia5110 48x84
 // pixel LCD to display text, images, or other information.
 // Daniel Valvano
+<<<<<<< HEAD
 // July 2, 2018
+=======
+// September 16, 2013
+>>>>>>> 9e99612670c669bebbc544d1cdee54ad73e822fc
 
 // Font table, initialization, and other functions based
 // off of Nokia_5110_Example from Spark Fun:
@@ -13,10 +17,17 @@
 // http://dlnmh9ip6v2uc.cloudfront.net/datasheets/LCD/Monochrome/Nokia_5110_Example.pde
 
 /* This example accompanies the book
+<<<<<<< HEAD
    "Embedded Systems: Introduction to ARM Cortex M Microcontrollers",
    ISBN: 978-1469998749, Jonathan Valvano, copyright (c) 2014
 
  Copyright 2014 by Jonathan W. Valvano, valvano@mail.utexas.edu
+=======
+   "Embedded Systems: Real Time Interfacing to Arm Cortex M Microcontrollers",
+   ISBN: 978-1463590154, Jonathan Valvano, copyright (c) 2013
+
+ Copyright 2013 by Jonathan W. Valvano, valvano@mail.utexas.edu
+>>>>>>> 9e99612670c669bebbc544d1cdee54ad73e822fc
     You may use, edit, run or distribute this file
     as long as the above copyright notice remains
  THIS SOFTWARE IS PROVIDED "AS IS".  NO WARRANTIES, WHETHER EXPRESS, IMPLIED
@@ -138,10 +149,19 @@ void static lcdwrite(enum typeOfWrite type, char message){
 // commands to the PCD8544 driver.  One new feature of the
 // LM4F120 is that its SSIs can get their baud clock from
 // either the system clock or from the 16 MHz precision
+<<<<<<< HEAD
 // internal oscillator.
 // inputs: none
 // outputs: none
 // assumes: system clock rate of 80 MHz
+=======
+// internal oscillator.  If the system clock is faster than
+// 50 MHz, the SSI baud clock will be faster than the 4 MHz
+// maximum of the Nokia 5110.
+// inputs: none
+// outputs: none
+// assumes: system clock rate of 50 MHz or less
+>>>>>>> 9e99612670c669bebbc544d1cdee54ad73e822fc
 void Nokia5110_Init(void){
   volatile unsigned long delay;
   SYSCTL_RCGC1_R |= SYSCTL_RCGC1_SSI0;  // activate SSI0
@@ -160,11 +180,17 @@ void Nokia5110_Init(void){
   SSI0_CR1_R &= ~SSI_CR1_MS;            // master mode
                                         // configure for system clock/PLL baud clock source
   SSI0_CC_R = (SSI0_CC_R&~SSI_CC_CS_M)+SSI_CC_CS_SYSPLL;
+<<<<<<< HEAD
                                         // clock divider for 3.33 MHz SSIClk (80 MHz PLL/24)
                                         // SysClk/(CPSDVSR*(1+SCR))
                                         // 80/(24*(1+0)) = 3.33 MHz (slower than 4 MHz)
   SSI0_CPSR_R = (SSI0_CPSR_R&~SSI_CPSR_CPSDVSR_M)+24; // must be even number
   SSI0_CR0_R &= ~(SSI_CR0_SCR_M |       // SCR = 0 (3.33 Mbps data rate)
+=======
+                                        // clock divider for 3.125 MHz SSIClk (50 MHz PIOSC/16)
+  SSI0_CPSR_R = (SSI0_CPSR_R&~SSI_CPSR_CPSDVSR_M)+16;
+  SSI0_CR0_R &= ~(SSI_CR0_SCR_M |       // SCR = 0 (3.125 Mbps data rate)
+>>>>>>> 9e99612670c669bebbc544d1cdee54ad73e822fc
                   SSI_CR0_SPH |         // SPH = 0
                   SSI_CR0_SPO);         // SPO = 0
                                         // FRF = Freescale format
@@ -305,6 +331,7 @@ void Nokia5110_DrawFullImage(const char *ptr){
     lcdwrite(DATA, ptr[i]);
   }
 }
+<<<<<<< HEAD
 char Screen[SCREENW*SCREENH/8]; // buffer stores the next image to be printed on the screen
 
 //********Nokia5110_PrintBMP*****************
@@ -435,3 +462,5 @@ void Nokia5110_DisplayBuffer(void){
   Nokia5110_DrawFullImage(Screen);
 }
 
+=======
+>>>>>>> 9e99612670c669bebbc544d1cdee54ad73e822fc

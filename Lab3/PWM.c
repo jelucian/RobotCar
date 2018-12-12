@@ -18,14 +18,18 @@
 #include "PLL.h"
 #include <stdint.h>
 #include "tm4c123gh6pm.h"
+#include "Nokia5110.h"
 #define PWM_0_GENA_ACTCMPAD_ONE 0x000000C0  // Set the output signal to 1
 #define PWM_0_GENA_ACTLOAD_ZERO 0x00000008  // Set the output signal to 0
 #define PWM_0_GENB_ACTCMPBD_ONE 0x00000C00  // Set the output signal to 1
 #define PWM_0_GENB_ACTLOAD_ZERO 0x00000008  // Set the output signal to 0
 
+
 int speed; 
 int dir = 1;
 int val = 998;
+unsigned char prev_s, current_s;	//Debounce logic
+
 
 void PortD_Init(void){
 	unsigned long volatile delay;
@@ -82,23 +86,42 @@ void PortD_Init(void){
 //interrupt handler
 void GPIOPortF_Handler(void){ // called on touch of either SW1 or SW2
 
-	if(GPIO_PORTF_RIS_R&0x01){  // SW2 touch controls direction
-			GPIO_PORTF_ICR_R = 0x01;  // acknowledge flag0
-			
+	unsigned long InA, InB, In;  // input from PF
+	
+	
+	GPIO_PORTF_ICR_R = 0x11;  // acknowledge flags
+	In = GPIO_PORTF_DATA_R & 0x11;//Data for debounce
+	InA = GPIO_PORTF_DATA_R& 0x10;//Data for flag SW1
+	InB = GPIO_PORTF_DATA_R& 0x01;//Data for flag SW2
+	
+	if((In == 0x11)&& (current_s==0)){ // zero means SW1 or SW2 is pressed
+		if(prev_s == current_s) //If the state is the same, allow change, if not, still debouncing
+			current_s = 1;
+	}	
+	Nokia5110_SetCursor(10, 5);
+	if((InB==0x00)&&(current_s == 1)&&(prev_s == current_s)){  // SW2 touch controls direction
 			dir ^= 1;
 			GPIO_PORTC_DATA_R ^= 0xFF;
 			if(speed != 0)//toggles blue and green only if car is moving
 				GPIO_PORTF_DATA_R ^= 0x0C;// toggle blue and green
 			else//sets red LED if car is off
-				GPIO_PORTF_DATA_R = 0x02; //red
+				GPIO_PORTF_DATA_R |= 0x02; //red
 		
 			val = 1000 - val;//invert duty cycle when direction is switched
 
+			Nokia5110_SetCursor(10, 5);
+			Nokia5110_SetCursor(10, 5);
+			Nokia5110_SetCursor(10, 5);
+			if(dir == 1)//forward
+				Nokia5110_OutChar('F');
+			else//backward
+				Nokia5110_OutChar('B');
   }
-  
-	if(GPIO_PORTF_RIS_R&0x10){  // SW1 touch controls speed
-			GPIO_PORTF_ICR_R = 0x11;  // acknowledge flag4
-		
+  Nokia5110_SetCursor(4, 5);
+	if((InA==0x00)&&(current_s == 1)&&(prev_s == current_s)){  // SW1 touch controls speed
+		Nokia5110_SetCursor(4, 5);
+		Nokia5110_SetCursor(4, 5);
+		Nokia5110_SetCursor(4, 5);
 		if(speed == 100){//max speed changes to 0 speed
 			GPIO_PORTF_DATA_R = 0x02; //red
 			speed = 0;			
@@ -108,6 +131,8 @@ void GPIOPortF_Handler(void){ // called on touch of either SW1 or SW2
 			else{
 				val = 2;
 			}
+			
+			Nokia5110_OutString("  0");
 		}
 		else if (speed == 0){//car not moving
 			if(dir == 1)//forward
@@ -122,6 +147,8 @@ void GPIOPortF_Handler(void){ // called on touch of either SW1 or SW2
 			else{
 					val = 700;
 			}
+			
+			Nokia5110_OutString(" 25");
 		}
 		else if(speed == 25){
 			speed = 50;//change to 50% speed
@@ -131,6 +158,8 @@ void GPIOPortF_Handler(void){ // called on touch of either SW1 or SW2
 			else{	
 					val = 800;
 			}
+			
+			Nokia5110_OutString(" 50");
 		}
 		else{		
 			speed = 100;	//change to maxspeed		
@@ -140,11 +169,19 @@ void GPIOPortF_Handler(void){ // called on touch of either SW1 or SW2
 			else{
 					val = 998;
 			}
+			
+			Nokia5110_OutString("100");
 		}
   }
 	//set duty cycle every time a button is pressed
-	PWM0_3_CMPA_R = val;
-	PWM1_0_CMPB_R = val;
+	//and set the button flag clear if logic is set
+	if((current_s == 1)&&(prev_s == current_s)&&((InB==0x00)||(InA==0x00)))
+	{
+		PWM0_3_CMPA_R = val;
+		PWM1_0_CMPB_R = val;
+		current_s = 0;
+	}
+	
 }
 
 void PortF_Init(void){  
@@ -170,11 +207,8 @@ void PortF_Init(void){
 	
 	//Interrupt Logic
   GPIO_PORTF_IS_R 	 &= ~0x11;     		// PF4 & PF0 is edge-sensitive
-  GPIO_PORTF_IBE_R   &= ~0x11;    		// PF4 & PF0 is not both edges
-  GPIO_PORTF_IEV_R   &= ~0x11;   			// PF4 & PF0 falling edge event
-	
+  GPIO_PORTF_IBE_R   |=  0x11;    		// PF4 & PF0 is both edges
   GPIO_PORTF_ICR_R    =  0x11;     		// clear flags for PF4 and PF0
-	
   GPIO_PORTF_IM_R    |=  0x11;      	// arm interrupt on PF4 & PF0
 	
   NVIC_PRI7_R = (NVIC_PRI7_R&0xFF00FFFF)|0x00400000; 	// priority 2 interrupt for switches				 
@@ -201,3 +235,39 @@ void PortC_Init(void){
 	GPIO_PORTC_DEN_R |= 0x30; //enable digital I/O on PC4,5
 	
 }
+
+void WaitForInterrupt(void);  // low power mode
+
+int main(void){
+  PLL_Init();                      // bus clock at 80 MHz
+	PortD_Init();
+	PortF_Init();
+	PortC_Init();
+	Nokia5110_Init();
+  Nokia5110_Clear();
+	Nokia5110_OutString("************* LCD Test *************Speed:  Dir:------- ---- ");
+	GPIO_PORTF_DATA_R = 0x02;
+	Nokia5110_SetCursor(4, 5);
+	Nokia5110_OutString("  0");
+	Nokia5110_SetCursor(10, 5);
+			if(dir == 1)//forward
+				Nokia5110_OutChar('F');
+			else//backward
+				Nokia5110_OutChar('B');
+	
+	current_s=0;
+  prev_s = 0;	
+	//Default values
+  while(1){
+    if (prev_s != current_s) {//Debounce logic check
+			unsigned int time = 727240*20/91;  // 0.01sec
+			while(time){
+				time--;
+			}
+			prev_s = current_s;
+		}
+  }
+}
+
+
+
