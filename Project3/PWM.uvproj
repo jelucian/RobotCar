@@ -421,9 +421,14 @@
               <FilePath>.\PWM.c</FilePath>
             </File>
             <File>
-              <FileName>PWMtest.c</FileName>
+              <FileName>Nokia5110.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\PWMtest.c</FilePath>
+              <FilePath>.\Nokia5110.c</FilePath>
+            </File>
+            <File>
+              <FileName>ADCSWTrigger.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\ADCSWTrigger.c</FilePath>
             </File>
           </Files>
         </Group>
