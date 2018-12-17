@@ -191,10 +191,10 @@ void updateADC(){
 }
 
 void updateLogic(){
-		if(distance1 < distance2 + 6 && distance1 > distance2 - 6) //Logic should dictate straight
+		if(distance1 < distance2 /*+ 6*/ && distance1 > distance2 /*- 6*/) //Logic should dictate straight
 		{
-			value1 = 750 - slow;//orig: 998
-			value2 = 750 - slow;//orig: 998 / 780
+			value1 = 750;//orig: 998
+			value2 = 750;//orig: 998 / 780
 			Nokia5110_SetCursor(5,5);
 			Nokia5110_OutString("Strai");
 			if(distance3 <= 15 || (distance1 > 45 && distance2 > 45)){//Complete stop
@@ -205,7 +205,7 @@ void updateLogic(){
 			}
 				
 		}
-		else if (distance1 > 45 && distance2 > 45 && distance3 >50){ // Stop logic
+		else if (distance1 > 55 && distance2 > 55 && distance3 >50){ // Stop logic
 			//Stop
 			value1 = 2;
 			value2 = 2;
@@ -216,19 +216,19 @@ void updateLogic(){
 		{
 			if(distance3 <= 15) //Incoming Wall //Add priority, when distance is < 10 make a sharper turn
 			{
-				if(distance1 <= distance2 + 5)
+				if(distance1 <= distance2 /*+ 5*/)
 				{
 					//Turn Left
-					value1 = 500 - slow;
-					value2 = 900 - slow;//make it equal speed
+					value1 = 400;//kinda worked w/ 200
+					value2 = 750;//make it equal speed
 					Nokia5110_SetCursor(5,5);
 					Nokia5110_OutString("Left ");
 					//Left
 				}	
 				else // Turn Right
 				{
-					value1 = 900 - slow;
-					value2 = 500 - slow;
+					value1 = 750;
+					value2 = 400;
 					Nokia5110_SetCursor(5,5);
 					Nokia5110_OutString("Right");
 					//Right
@@ -236,19 +236,19 @@ void updateLogic(){
 			}
 			else//Go Left or Right
 			{
-				if(distance1 <= distance2 + 5)//6 is sensitivty 
+				if(distance1 <= distance2 /*+ 5*/)//6 is sensitivty 
 				{
 					//Turn Left
-					value1 = 600 - slow;
-					value2 = 750 - slow;
+					value1 = 400;
+					value2 = 750;
 					Nokia5110_SetCursor(5,5);
 					Nokia5110_OutString("Left ");
 					//Left
 				}	
 				else // Turn Right
 				{
-					value1 = 750 - slow;
-					value2 = 600 - slow;
+					value1 = 750;
+					value2 = 400;//stop
 					Nokia5110_SetCursor(5,5);
 					Nokia5110_OutString("Right");
 					//Right
@@ -281,9 +281,9 @@ unsigned int updateADCDistance(unsigned int index, unsigned int place, unsigned 
 		prevDistance[place] = distanceCalc;
 		
 		Nokia5110_SetCursor(5,place);
-		if(distanceCalc >= 52){
+		if(distanceCalc >= 65){
 			Nokia5110_OutString("OOR   ");
-			distanceCalc = 52;
+			distanceCalc = 65;
 		}
 		else
 			Nokia5110_OutUDec(distanceCalc);

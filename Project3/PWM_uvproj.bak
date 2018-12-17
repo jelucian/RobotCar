@@ -425,11 +425,6 @@
               <FileType>1</FileType>
               <FilePath>.\Nokia5110.c</FilePath>
             </File>
-            <File>
-              <FileName>ADCSWTrigger.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\ADCSWTrigger.c</FilePath>
-            </File>
           </Files>
         </Group>
       </Groups>
