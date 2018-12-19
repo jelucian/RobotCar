@@ -1,7 +1,6 @@
 // PWM.c
 // Runs on TM4C123
 
-
 /* 
 		PD0 - M0PWM6 - val 4 for PCTL - PWM motor A - generator 3 output a
 		PD1 - M1PWM1 - val 5 for PCTL - PWM motor B - generator 0 output b
@@ -15,32 +14,6 @@
 		PC4 for dir A - GPIO
 		PC5 for dir B - GPIO
  */
- 
- 
- 
- 
- /*
-		Aaron's Task Log:
-		*Turning does not work properly, car does turn right direction, but continues the same direction
-			*It's a circle process, so begins turn in right direction
-			*But does not correct itself to go right direction when in center
-			*turns in circle (may need to try editing the values to turn slower)
-			*Turning Right slower than turning left (motors not on same speed when turning?)
-		+Fixed turning to function correctly
-		=Update: Lowering value fixes it, but will not work on track length (too slow of a correction)
-			*Additionally, it will continue at an angle, it is impossible for it to remain straight
-		+Added correction code
-		-Removed correction code due to improper functionality
-		+Changed values to test it (bouncing rn)
-			
-		*According to other groups, lower pwm, number just needs to be messed with
-		*Turn isn't 90 degrees but more of a curved turn
-		*Zig-Zagging is valid
- */
- 
- 
- 
- 
  
 #include "PLL.h"
 #include <stdint.h>
@@ -57,6 +30,7 @@ int speed, prevSpeed;
 int dir = 1;
 int val = 998;
 int value1, value2;
+int temp, triggered, times;
 		
 
 unsigned long ADCvalue1, ADCvalue2, ADCvalue3, ADCvalue4;
@@ -191,21 +165,51 @@ void updateADC(){
 }
 
 void updateLogic(){
-		if(distance1 < distance2 /*+ 6*/ && distance1 > distance2 /*- 6*/) //Logic should dictate straight
+		GPIO_PORTC_DATA_R = 0x00;
+		if(distance1 < distance2 + 5 && distance1 > distance2 - 5 && distance1 <= 50 && distance3 > 15) //Logic should dictate straight
 		{
-			value1 = 750;//orig: 998
-			value2 = 750;//orig: 998 / 780
+			value1 = 700;//orig: 998
+			value2 = 700;//orig: 998 / 780
+			GPIO_PORTC_DATA_R = 0x00;
 			Nokia5110_SetCursor(5,5);
 			Nokia5110_OutString("Strai");
-			if(distance3 <= 15 || (distance1 > 45 && distance2 > 45)){//Complete stop
+			/*if(distance3 <= 15 || (distance1 > 45 && distance2 > 45)){//Complete stop
 				value1 = 2;
 				value2 = 2;
 				Nokia5110_SetCursor(5,5);
 				Nokia5110_OutString("Stop!");
-			}
-				
+			}*/
+				if(triggered == 3 )//6 is sensitivty 
+				{
+					//Turn Left
+					value1 = 200;
+					value2 = 750;
+					Nokia5110_SetCursor(5,5);
+					Nokia5110_OutString("Left ");
+					if(times - 2 <= 0){
+						times = 0;
+						triggered = 0;
+					}
+					else
+						times = times -2;
+					//Left
+				}	
+				else if (triggered == 2)// Turn Right
+				{
+					value1 = 750;
+					value2 = 200;//stop
+					Nokia5110_SetCursor(5,5);
+					Nokia5110_OutString("Right");
+					if(times - 2 <= 0){
+						times = 0;
+						triggered = 0;
+					}
+					else
+						times = times -2;
+					//Right
+				}
 		}
-		else if (distance1 > 55 && distance2 > 55 && distance3 >50){ // Stop logic
+		else if (distance1 > 50 && distance2 > 50 && distance3 > 50){ // Stop logic
 			//Stop
 			value1 = 2;
 			value2 = 2;
@@ -216,41 +220,33 @@ void updateLogic(){
 		{
 			if(distance3 <= 15) //Incoming Wall //Add priority, when distance is < 10 make a sharper turn
 			{
-				if(distance1 <= distance2 /*+ 5*/)
-				{
-					//Turn Left
-					value1 = 400;//kinda worked w/ 200
-					value2 = 750;//make it equal speed
-					Nokia5110_SetCursor(5,5);
-					Nokia5110_OutString("Left ");
-					//Left
-				}	
-				else // Turn Right
-				{
-					value1 = 750;
-					value2 = 400;
-					Nokia5110_SetCursor(5,5);
-					Nokia5110_OutString("Right");
-					//Right
-				}
+				value1 = 750;
+				value2 = 750;
+				GPIO_PORTC_DATA_R = 0xFF;
+				value1 = 1000 - value1;
+				value2 = 1000 - value2;
+				times = times + 2;
 			}
 			else//Go Left or Right
 			{
-				if(distance1 <= distance2 /*+ 5*/)//6 is sensitivty 
+				times ++;
+				if(distance1 <= distance2 )//6 is sensitivty 
 				{
 					//Turn Left
-					value1 = 400;
+					value1 = 200;
 					value2 = 750;
 					Nokia5110_SetCursor(5,5);
 					Nokia5110_OutString("Left ");
+					triggered = 2;
 					//Left
 				}	
 				else // Turn Right
 				{
 					value1 = 750;
-					value2 = 400;//stop
+					value2 = 200;//stop
 					Nokia5110_SetCursor(5,5);
 					Nokia5110_OutString("Right");
+					triggered = 3;
 					//Right
 				}
 			}
